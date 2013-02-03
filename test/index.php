@@ -1,6 +1,6 @@
 <?php
 
-require_once('../sn.php');
+require_once('../simplified.php');
 
 $main->a = new String('boo');
 
