@@ -13,12 +13,12 @@ An Entity is delimited with square brackets, and optional commas for multiple it
 
 ### Example:
 
-  a: [name: "Dan", age: 20]
+    a: [name: "Dan", age: 20]
 
-  b: [name: "Dan"
-       age: 20]
+    b: [name: "Dan"
+         age: 20]
 
-  a == b
+    a == b
 
 # Expressions
 
@@ -26,35 +26,58 @@ Expressions contain a set of functionality to be executed at a later time. Expre
 
 ### Example:
 
-  add: {a + b}[a: 0, b: 0]
+    add: {a + b}[a: 0, b: 0]
 
-  4 == add[b: 4]
+    4 == add[b: 4]
 
-  6 == add[b: 3, a: 3]
+    6 == add[b: 3, a: 3]
 
 You may curry arguments and provide the remaining arguments at any time. Attempting to provide the same arguments twice will result in an error.
 
 ### Example:
 
-  add: {a + b}[a: 0, b: 0]
+    add: {a + b}[a: 0, b: 0]
 
-  add2: add & [a: 2]
+    add2: add & [a: 2]
 
-  7 == add2[b: 5]
+    7 == add2[b: 5]
 
 It's perfectly fine to curry all of the arguments. When you want to invoke the function, just pass it an empty Entity.
 
 ### Example:
 
- add: {a + b}[a: 0, b:0]
+    add: {a + b}[a: 0, b:0]
 
- add6and4: add & [a: 6, b: 4]
+    add6and4: add & [a: 6, b: 4]
 
- 10 == add6and4[]
+    10 == add6and4[]
 
 # Expressions as Entity Attributes
 
-Expressions may be defined inline within an entity, and vice-versa. It's perfectly fine to attach expressions to entities after they are created as well.
+Expressions may be defined inline within an entity, and vice-versa. It's perfectly fine to attach expressions to entities after they are created as well. In the following example, no default arguments are needed. An error would be raised if joe had no name variable in scope. Also note that the name and occupation variables are not inside the string.
 
 ### Example:
 
+    joe: [name: "Joe Swanson", occupation: "Police Officer"]
+    
+    joe.greeting: {"Hi, my name is " name " and I'm a " occupation "."}[]
+    
+    "Hi, my name is Joe Swanson and I'm a Police Officer." == joe.greeting[]
+    
+If you do not need to pass in any default arguments to your expression, you may use a single exclamation after the left opening brace of the expression.
+
+### Example:
+
+    add: {! a + b}
+    
+    9 == add[a: 4, b: 5]
+    
+If you have an expression where there is no chance you will ever need to pass any arguments to, you can create a Property. A Property is created with a double exclamation after the opening left brace in the expression. I'll also show creating the expression inline in this example. Again, any missing variables will cause an error.
+
+### Example:
+
+    steve: [        name: "Steve"
+                     age: 34
+            ageIn10Years: {!! "In 10 years, " name " will be " age + 10} ]
+    
+    "In 10 years, Steve will be 44" == steve.ageIn10Years
