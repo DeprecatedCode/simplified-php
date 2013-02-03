@@ -40,7 +40,7 @@ class EntityStringRepresentationNativeProperty extends NativeProperty {
             return StringRepresentation::void($self);
         }
 
-        if($self instanceof Entity) {
+        if($self instanceof Prototype) {
 
             $x = array();
             foreach($self->getPrivate() as $var => $val) {
@@ -54,7 +54,7 @@ class EntityStringRepresentationNativeProperty extends NativeProperty {
             return new String('[' . implode(', ', $x) . ']');
         }
 
-        throw new Exception("Unknown Entity");
+        throw new Exception("Unknown Component");
     }
 
 }

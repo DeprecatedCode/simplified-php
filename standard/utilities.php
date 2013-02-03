@@ -6,12 +6,23 @@
  */
 
 /**
- * Entity String Representation
+ * Included Entities
  */
 class IncludedEntitiesNativeProperty extends NativeProperty {
 
     public function __invoke($self) {
         return new Entity($self->getIncludedEntities());
+    }
+
+}
+
+/**
+ * Entity Prototype
+ */
+class EntityPrototypeNativeProperty extends NativeProperty {
+
+    public function __invoke($self) {
+        return $self->getEntityPrototype();
     }
 
 }

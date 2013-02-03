@@ -45,11 +45,14 @@ foreach(explode(' ', 'grammar http representation sparse utilities') as $file) {
  */
 $standard->toString = new EntityStringRepresentationNativeProperty;
 $standard->includedEntities = new IncludedEntitiesNativeProperty;
+$standard->entityPrototype = new EntityPrototypeNativeProperty;
 
 /**
  * String Methods
  */
-$standard->String->getIncludeComponent()->length = new StringLengthNativeProperty;
+$string = $standard->String->getEntityPrototype();
+$string->length = new StringLengthNativeProperty;
+
 
 /**
  * Network Methods

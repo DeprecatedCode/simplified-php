@@ -6,9 +6,9 @@
  */
 
 /**
- * Component
+ * Prototype
  */
-class Component {
+class Prototype {
 
     /**
      * Local variables
@@ -26,27 +26,31 @@ class Component {
      * Check variable existance
      */
     public function __isset($var) {
-        if(isset($this->private[$var])) {
-            return true;
-        }
-        return false;
+        return isset($this->private[$var]);
     }
 
     /**
      * Get component variables
      */
-    public function get($var) {
+    public function __get($var) {
         if(isset($this->private[$var])) {
             return $this->private[$var];
         }
         return new Void;
+    }
+
+    /**
+     * Get the private variables
+     */
+    public function getPrivate() {
+        return $this->private;
     }
 }
 
 /**
  * Entity
  */
-class Entity extends Component {
+class Entity extends Prototype {
 
     /**
      * Included entities
@@ -77,15 +81,6 @@ class Entity extends Component {
          */
         foreach(self::$standardIncludes as $other) {
             $this->includeEntity($other);
-        }
-
-        /**
-         * Include Entity Components
-         */
-        foreach(array_keys(self::$entityIncludes) as $class) {
-            if(is_a($this, $class)) {
-                $this->includeEntity(self::$entityIncludes[$class]);
-            }
         }
 
         /**
@@ -130,15 +125,7 @@ class Entity extends Component {
      * Private variables override included variables when read
      */
     public function __get($var) {
-        if(isset($this->private[$var])) {
-            return $this->doReturn($this->private[$var]);
-        }
-        foreach($this->includes as $other) {
-            if(isset($other->$var)) {
-                return $this->doReturn($other->get($var));
-            }
-        }
-        return new Void;
+        return $this->doReturn($this->get($var));
     }
 
     /**
@@ -154,7 +141,7 @@ class Entity extends Component {
                 return $other->get($var);
             }
         }
-        return new Void;
+        return $this->getEntityPrototype()->$var;
     }
 
 
@@ -166,13 +153,6 @@ class Entity extends Component {
             return $val($this);
         }
         return $val;
-    } 
-
-    /**
-     * Get the private variables
-     */
-    public function getPrivate() {
-        return $this->private;
     }
 
     /**
@@ -185,18 +165,18 @@ class Entity extends Component {
     /**
      * Include an entity
      */
-    public function includeEntity(Component $entity) {
+    public function includeEntity(Entity $entity) {
         array_unshift($this->includes, $entity);
     }
 
     /**
-     * Include an entity component
+     * Get a reference to an entity include component
      */
-    public function getIncludeComponent() {
+    public function getEntityPrototype() {
         $class = get_class($this);
-        if(!isset(Entity::$entityIncludes[$class])) {
-            Entity::$entityIncludes[$class] = new Component;
+        if(!isset(self::$entityIncludes[$class])) {
+            self::$entityIncludes[$class] = new Prototype;
         }
-        return Entity::$entityIncludes[$class];
+        return self::$entityIncludes[$class];
     }
 }

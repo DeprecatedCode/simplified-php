@@ -14,6 +14,8 @@ $main->a_length = $main->a->length;
 
 $main->included = $main->includedEntities;
 
+$main->string_prototype = $main->String->entityPrototype;
+
 /**
  * Represent Main
  */
