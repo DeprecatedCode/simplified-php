@@ -46,7 +46,7 @@ It's perfectly fine to curry all of the arguments. When you want to invoke the f
 
 ### Example:
 
-    add: {a + b}[a: 0, b:0]
+    add: {a + b}[a: 0, b: 0]
 
     add6and4: add & [a: 6, b: 4]
 
