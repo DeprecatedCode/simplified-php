@@ -10,9 +10,10 @@
  */
 class Number extends Entity {
 
-    private $value = 0;
+    protected $value = 0;
 
     public function __construct($val = 0) {
+        parent::__construct();
         $this->value = $val;
     }
 

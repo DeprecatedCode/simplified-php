@@ -6,24 +6,57 @@
  */
 
 /**
- * Entity
+ * Component
  */
-class Entity {
-
-    /**
-     * Included entities
-     */
-    private $includes = array();
+class Component {
 
     /**
      * Local variables
      */
-    private $private = array();
+    protected $private = array();
+
+    /**
+     * Add to component private variables
+     */
+    public function __set($var, $val) {
+        $this->private[$var] = $val;
+    }
+
+    /**
+     * Check variable existance
+     */
+    public function __isset($var) {
+        if(isset($this->private[$var])) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get component variables
+     */
+    public function get($var) {
+        if(isset($this->private[$var])) {
+            return $this->private[$var];
+        }
+        return new Void;
+    }
+}
+
+/**
+ * Entity
+ */
+class Entity extends Component {
+
+    /**
+     * Included entities
+     */
+    protected $includes = array();
 
     /**
      * Parent Entity
      */
-    private $parent = null;
+    protected $parent = null;
 
     /**
      * Standard Includes
@@ -31,12 +64,33 @@ class Entity {
     public static $standardIncludes = array();
 
     /**
+     * Entity-specific Includes
+     */
+    public static $entityIncludes = array();
+
+    /**
      * Constructor
      */
     public function __construct($vars = null) {
+        /**
+         * Include Standard Components
+         */
         foreach(self::$standardIncludes as $other) {
             $this->includeEntity($other);
         }
+
+        /**
+         * Include Entity Components
+         */
+        foreach(array_keys(self::$entityIncludes) as $class) {
+            if(is_a($this, $class)) {
+                $this->includeEntity(self::$entityIncludes[$class]);
+            }
+        }
+
+        /**
+         * Handle arguments
+         */
         if(is_array($vars)) {
             foreach($vars as $var => $val) {
                 if($val instanceof Entity) {
@@ -55,13 +109,6 @@ class Entity {
                 $this->$var = $val;
             }
         }
-    }
-
-    /**
-     * You cannot add to shared variables
-     */
-    public function __set($var, $val) {
-        $this->private[$var] = $val;
     }
 
     /**
@@ -138,7 +185,18 @@ class Entity {
     /**
      * Include an entity
      */
-    public function includeEntity(Entity $entity) {
+    public function includeEntity(Component $entity) {
         array_unshift($this->includes, $entity);
+    }
+
+    /**
+     * Include an entity component
+     */
+    public function getIncludeComponent() {
+        $class = get_class($this);
+        if(!isset(Entity::$entityIncludes[$class])) {
+            Entity::$entityIncludes[$class] = new Component;
+        }
+        return Entity::$entityIncludes[$class];
     }
 }

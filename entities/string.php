@@ -10,9 +10,10 @@
  */
 class String extends Entity {
 
-    private $value = '';
+    protected $value = '';
 
     public function __construct($val = '') {
+        parent::__construct();
         $this->value = $val;
     }
 

@@ -47,6 +47,11 @@ $standard->toString = new EntityStringRepresentationNativeProperty;
 $standard->includedEntities = new IncludedEntitiesNativeProperty;
 
 /**
+ * String Methods
+ */
+$standard->String->getIncludeComponent()->length = new StringLengthNativeProperty;
+
+/**
  * Network Methods
  */
 $standard->Network->http = NetworkHTTP::getEntity();

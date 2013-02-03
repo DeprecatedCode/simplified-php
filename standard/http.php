@@ -31,7 +31,7 @@ class NetworkHTTP {
  */
 class NetworkHTTPMethod extends NativeExpression {
 
-    private $method;
+    protected $method;
 
     public function expressionArgs() {
         $args = new Entity(array('url' => new Void));

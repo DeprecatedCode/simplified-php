@@ -10,7 +10,7 @@ $main->c = $main->Void;
 
 $main->d = $main->Entity;
 
-$main->aLength = $main->a->length;
+$main->a_length = $main->a->length;
 
 $main->included = $main->includedEntities;
 

@@ -27,7 +27,7 @@ class SparseParseException extends Exception {
  */
 class Sparse {
 
-    private $grammar = array();
+    protected $grammar = array();
 
     public function __construct($grammar) {
         $this->grammar = $grammar;
@@ -47,20 +47,20 @@ class Sparse {
  */
 class SparseDocument {
 
-    private $pointer = 0;
-    private $line = 1;
-    private $col = 1;
-    private $_pointer = 0;
-    private $_line = 1;
-    private $_col = 1;
-    private $length = 0;
-    private $str;
-    private $tokens;
-    private $grammar;
-    private $tree;
-    private $tip;
-    private $stack = array();
-    private $context;
+    protected $pointer = 0;
+    protected $line = 1;
+    protected $col = 1;
+    protected $_pointer = 0;
+    protected $_line = 1;
+    protected $_col = 1;
+    protected $length = 0;
+    protected $str;
+    protected $tokens;
+    protected $grammar;
+    protected $tree;
+    protected $tip;
+    protected $stack = array();
+    protected $context;
 
     public function __construct(&$grammar, &$str, $context) {
         $this->grammar = $grammar;
@@ -351,7 +351,7 @@ class SparseDocument {
     /**
      * Throw an exception
      */
-    private function fail($why) {
+    protected function fail($why) {
         $near = substr($this->str, $this->_pointer);
         if(strlen($near) > self::FAIL_NEAR_LENGTH) {
             $near = substr($near, 0, self::FAIL_NEAR_LENGTH) . '...';

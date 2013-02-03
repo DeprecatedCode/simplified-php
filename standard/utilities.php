@@ -15,3 +15,14 @@ class IncludedEntitiesNativeProperty extends NativeProperty {
     }
 
 }
+
+/**
+ * String Length
+ */
+class StringLengthNativeProperty extends NativeProperty {
+
+    public function __invoke($self) {
+        return new Number(strlen($self->getValue()));
+    }
+
+}
