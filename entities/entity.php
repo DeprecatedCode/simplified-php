@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Simple Notation :: PHP
+ * Simplified PHP
  * @author Nate Ferrero
  */
 
@@ -65,7 +65,7 @@ class Entity extends Prototype {
     /**
      * Standard Includes
      */
-    public static $standardIncludes = array();
+    public static $standard = null;
 
     /**
      * Entity-specific Includes
@@ -77,10 +77,10 @@ class Entity extends Prototype {
      */
     public function __construct($vars = null) {
         /**
-         * Include Standard Components
+         * Include Standard Entity
          */
-        foreach(self::$standardIncludes as $other) {
-            $this->includeEntity($other);
+        if(!is_null(self::$standard)) {
+            $this->includeEntity(self::$standard);
         }
 
         /**
@@ -88,7 +88,7 @@ class Entity extends Prototype {
          */
         if(is_array($vars)) {
             foreach($vars as $var => $val) {
-                if($val instanceof Entity) {
+                if($val instanceof Prototype) {
                     ;
                 } else if(is_array($val)) {
                     $val = new Entity($val);

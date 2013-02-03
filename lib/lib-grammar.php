@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Moonlight Grammar
+ * Simplified PHP Library: Grammar
  * @author Nate Ferrero
  */
 
 /**
- * Setup the sparse parser
+ * Setup the Sparse parser
  */
 class Grammar {
 

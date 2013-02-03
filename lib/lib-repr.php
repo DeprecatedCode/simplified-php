@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Simple Notation :: PHP
+ * Simplified PHP
  * @author Nate Ferrero
  */
 

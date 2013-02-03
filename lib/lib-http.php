@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Simple Notation :: PHP
+ * Simplified PHP
  * @author Nate Ferrero
  */
 
@@ -52,3 +52,8 @@ class NetworkHTTPMethod extends NativeExpression {
     }
 
 }
+
+/**
+ * Network Methods
+ */
+Entity::$standard->Network->http = NetworkHTTP::getEntity();

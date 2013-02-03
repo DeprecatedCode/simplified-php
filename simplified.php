@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Simple Notation :: PHP
+ * Simplified PHP
  * @author Nate Ferrero
  */
 
@@ -19,41 +19,21 @@ foreach($entities as $file) {
  * Setup standard scope which will automatically be included
  * on Entity creation.
  */
-$standard = new Entity;
-Entity::$standardIncludes[] = $standard;
+Entity::$standard = new Entity;
 
 /**
  * Standard Entities
  */
-foreach($entities as $entity) {
-    $standard->$entity = new $entity;
+foreach($entities as $type) {
+    Entity::$standard->$type = new $type;
 }
 
 /**
- * Standard Includes
+ * Standard Library Includes
  */
-foreach(explode(' ', 'grammar http representation sparse utilities') as $file) {
-    require_once(__DIR__ . "/standard/$file.php");
+foreach(explode(' ', 'repr entity grammar http sparse string util') as $file) {
+    require_once(__DIR__ . "/lib/lib-$file.php");
 }
-
-/**
- * Standard Methods
- */
-$standard->toString = new EntityStringRepresentationNativeProperty;
-$standard->includedEntities = new IncludedEntitiesNativeProperty;
-$standard->entityPrototype = new EntityPrototypeNativeProperty;
-
-/**
- * String Methods
- */
-$string = $standard->String->getEntityPrototype();
-$string->length = new StringLengthNativeProperty;
-
-
-/**
- * Network Methods
- */
-$standard->Network->http = NetworkHTTP::getEntity();
 
 /**
  * Main Entity
