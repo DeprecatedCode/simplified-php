@@ -8,9 +8,11 @@
 /**
  * Include Entities
  */
-foreach(explode(' ', 'entity expression file network number property ' .
-    'request string void') as $file) {
-    require_once(__DIR__ . "/entities/$file.php");
+$entities = explode(' ', 'Entity Expression File Network Number Property' .
+    ' ' . 'Request String Void');
+
+foreach($entities as $file) {
+    require_once(__DIR__ . strtolower("/entities/$file.php"));
 }
 
 /**
@@ -23,15 +25,9 @@ Entity::$standardIncludes[] = $standard;
 /**
  * Standard Entities
  */
-$standard->Entity     = new     Entity;
-$standard->Expression = new Expression;
-$standard->File       = new       File;
-$standard->Network    = new    Network;
-$standard->Number     = new     Number;
-$standard->Property   = new   Property;
-$standard->Request    = new    Request;
-$standard->String     = new     String;
-$standard->Void       = new       Void;
+foreach($entities as $entity) {
+    $standard->$entity = new $entity;
+}
 
 /**
  * Standard Includes
