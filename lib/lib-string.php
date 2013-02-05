@@ -28,6 +28,17 @@ class StringExecuteNativeProperty extends NativeProperty {
 }
 
 /**
+ * String Print
+ */
+class StringPrintNativeProperty extends NativeProperty {
+
+    public function __invoke($self) {
+        echo $self->getValue();
+    }
+
+}
+
+/**
  * String Replace Native Expression
  */
 class StringReplaceNativeExpression extends NativeExpression {
@@ -54,5 +65,6 @@ class StringReplaceNativeExpression extends NativeExpression {
  */
 $string = Entity::$standard->String->getEntityPrototype();
 $string->length = new StringLengthNativeProperty;
+$string->print = new StringPrintNativeProperty;
 $string->execute = new StringExecuteNativeProperty;
 $string->replace = new StringReplaceNativeExpression;
