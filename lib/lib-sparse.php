@@ -36,7 +36,7 @@ class Sparse {
     /**
      * Apply the grammar to a string, generating an array of tokens
      */
-    public function __call($str, $context='root') {
+    public function tokenize($str, $context='root') {
         $doc = new SparseDocument($this->grammar, $str, $context);
         return $doc->tokenize();
     }

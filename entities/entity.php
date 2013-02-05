@@ -144,6 +144,36 @@ class Entity extends Prototype {
         return $this->getEntityPrototype()->$var;
     }
 
+    /**
+     * Call an expression
+     */
+    public function __call($method, $args) {
+
+        if(count($args) !== 1) {
+            throw new Exception("Too many arguments passed to Expression");
+        }
+
+        /**
+         * Only argument must be an Entity
+         */
+        $entity = $args[0];
+        if($entity instanceof $entity) {
+            ;
+        } else {
+            throw new Exception("Argument must be an Entity");
+        }
+
+        /**
+         * Method must be an Expression
+         */
+        $expression = $this->get($method);
+
+        if($expression instanceof Expression) {
+           return $this->doReturn($expression($this, $entity));
+        } else {
+            throw new Exception("$method is not an Expression");
+        }
+    }
 
     /**
      * Handle return values, especially properties

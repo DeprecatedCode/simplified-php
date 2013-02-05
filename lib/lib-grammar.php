@@ -10,6 +10,14 @@
  */
 class Grammar {
 
+    public static function getCode($string) {
+        static $parser = null;
+        if(is_null($parser)) {
+            $parser = self::getParser();
+        }
+        return new Code($parser->tokenize($string));
+    }
+
     public static function getParser() {
 
         return new Sparse(array(

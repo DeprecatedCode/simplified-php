@@ -2,6 +2,8 @@
 
 require_once('../simplified.php');
 
+$main = new Entity;
+
 $main->a = new String('boo');
 
 $main->b = new Number(5.4321);
@@ -17,6 +19,8 @@ $main->a_length = $main->a->length;
 $main->included = $main->includedEntities;
 
 $main->string_prototype = $main->String->entityPrototype;
+
+$main->replaced = $main->a->replace(new Entity(array('o' => 'a')));
 
 /**
  * Represent Main

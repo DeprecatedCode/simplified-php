@@ -8,8 +8,8 @@
 /**
  * Include Entities
  */
-$entities = explode(' ', 'Entity Expression File Network Number Property' .
-    ' ' . 'Request String Void');
+$entities = explode(' ', 'Entity Code Expression File Network Number' .
+    ' ' . 'Property Request Router String Void');
 
 foreach($entities as $file) {
     require_once(__DIR__ . strtolower("/entities/$file.php"));
@@ -31,11 +31,14 @@ foreach($entities as $type) {
 /**
  * Standard Library Includes
  */
-foreach(explode(' ', 'repr entity grammar http sparse string util') as $file) {
+foreach(explode(' ', 'repr code entity file grammar http '.
+    'router sparse string util') as $file) {
     require_once(__DIR__ . "/lib/lib-$file.php");
 }
 
 /**
- * Main Entity
+ * Routing
  */
-$main = new Entity;
+if(isset($_SERVER['REDIRECT_URL'])) {
+    Entity::$standard->Router->route(new Entity);
+}
