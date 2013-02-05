@@ -77,3 +77,38 @@ If you have an expression where there is no chance you will ever need to pass an
             ageIn10Years: {! "In 10 years, " name " will be " age + 10} ]
     
     "In 10 years, Steve will be 44" == steve.ageIn10Years
+
+# Loops
+
+Every entity has an `each` property, to which an expression may be applied that uses the variable `it` for the current iteration value, and key for the index.
+
+### Example:
+
+    count = " ".join([1..10].each{it + 3})
+
+    count == "4 5 6 7 8 9 10 11 12 13"
+    
+    names: [[name: "Bob"], [name: "Jim"]].each{it.name}.each{it.replace["o": "i", "i": "a"]}
+    
+    names == [0: "Bib", 1: "Jam"]
+    
+    fruits = ["Apple", "Pear", "Orange", "Carrot", "Potato", "Nectarine"].get[0..2, 5].each{it.get[0..2]}
+    
+    fruits == [0: "App", 1: "Pea", 2: "Ora", 3: "Nec"] 
+    
+# Conditional Matching
+
+To perform matching, specify the variable you want to match on and follow with a `?`. A literal `*` is the catchall condition and must be used last. Any partial expression may be used, assuming that the value you are matching on is the leftmost item. If this is not the case, you may use the literal `?` anywhere to denote the value.
+
+### Example:
+
+    temp = [20, 32, 45, 60, 72].each{
+        it ?
+           <= 32: "Freezing"
+            < 60: "Cold"
+            < 70: "Cool"
+            < 80: "Perfect"
+               *: "Hot"
+    }
+    
+    temp == ["Freezing", "Freezing", "Cold", "Cool", "Perfect"]
