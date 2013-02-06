@@ -9,7 +9,7 @@
  * Include Entities
  */
 $entities = explode(' ', 'Entity Code Expression File Network Number' .
-    ' ' . 'Property Request Router String Void');
+    ' ' . 'Property Range Request Router String Void');
 
 foreach($entities as $file) {
     require_once(__DIR__ . strtolower("/entities/$file.php"));

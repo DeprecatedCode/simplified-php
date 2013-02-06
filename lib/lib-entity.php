@@ -28,7 +28,7 @@ class EntityPrototypeNativeProperty extends NativeProperty {
 }
 
 /**
- * Entity Prototype
+ * Entity Length
  */
 class EntityLengthNativeProperty extends NativeProperty {
 
@@ -39,8 +39,25 @@ class EntityLengthNativeProperty extends NativeProperty {
 }
 
 /**
+ * Entity Each
+ */
+class EntityEachNativeExpression extends NativeExpression {
+
+    public function __invoke($self) {
+        /* TODO: Iterate through all items.
+         *       When reaching a range, iterate through the range.
+         *       Key does not advance during range iteration, `it` does!
+         */
+    }
+
+}
+
+/**
  * Standard Methods
  */
+Entity::$standard->each = new EntityEachNativeExpression;
+# Entity::$standard->filter = new EntityFilterNativeExpression;  # .filter{it.name == "Nate"}
+# Entity::$standard->get = new EntityGetNativeExpression;        # .get[1, 2]    .get("name")
 Entity::$standard->length = new EntityLengthNativeProperty;
 Entity::$standard->toString = new EntityStringRepresentationNativeProperty;
 Entity::$standard->includedEntities = new IncludedEntitiesNativeProperty;
