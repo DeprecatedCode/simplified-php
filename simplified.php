@@ -6,39 +6,49 @@
  */
 
 /**
- * Include Entities
+ * Entity
  */
-$entities = explode(' ', 'Entity Code Expression File Network Number' .
-    ' ' . 'Property Range Request Router String Void');
+class Entity {
 
-foreach($entities as $file) {
-    require_once(__DIR__ . strtolower("/entities/$file.php"));
+    public function __construct($clone = null) {
+        if(!is_null($clone)) {
+            foreach($clone->keys() as $key) {
+                $this->$key = $clone->$key;
+            }
+        }
+    }
+
+    public $scope = array();
+
+    public function __get($var) {
+        if isset($this->scope[$var]) {
+            return $this->scope[$var];
+        }
+    }
+
+    public function __set($var, $value) {
+        $this->scope[$var] = $value;
+    }
+
+    public function keys() {
+        return array_keys($this->scope);
+    }
+
 }
 
 /**
- * Setup standard scope which will automatically be included
- * on Entity creation.
+ * Simplified Class
  */
-Entity::$standard = new Entity;
-
-/**
- * Standard Entities
- */
-foreach($entities as $type) {
-    Entity::$standard->$type = new $type;
+class S {
+    public static $prototype;
 }
 
-/**
- * Standard Library Includes
- */
-foreach(explode(' ', 'repr code entity file grammar http '.
-    'router sparse string util') as $file) {
-    require_once(__DIR__ . "/lib/lib-$file.php");
-}
+S::$prototype = new Entity;
 
 /**
- * Routing
+ * All Prototypes
  */
-if(isset($_SERVER['REDIRECT_URL'])) {
-    Entity::$standard->Router->route(new Entity);
+foreach(explode(' ', 'entity code expression file network ' .
+    'number property range request router string') as $path) {
+    require_once(__DIR__ . "/lib/$file.php");
 }
