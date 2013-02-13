@@ -1,10 +1,18 @@
 <?php
 
-S::$prototype->Entity = new Entity;
+S::$lib->Entity = array();
+$X = &S::$lib->Entity;
 
 /**
- * Length Property
+ * Entity Constructor
  */
-S::$prototype->Entity->length = function($context) {
-    return count($context->scope);
+$X[S::CONSTRUCTOR] = function(&$context) {
+    return $context;
+};
+
+/**
+ * Entity Length
+ */
+$X['length'] = function(&$context) {
+    return count($context) - (int) isset($context[S::TYPE]);
 };
