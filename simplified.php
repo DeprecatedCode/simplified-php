@@ -90,6 +90,9 @@ class S {
                  */
                 if(is_array($value) && isset($value[S::IMMEDIATE])) {
                     $method = $value[S::IMMEDIATE];
+                    if(!is_callable($method)) {
+                        return $method;
+                    }
                     return $method($context);
                 }
 
@@ -105,6 +108,9 @@ class S {
                 $prototype = &S::$lib->$type;
                 if(isset($prototype[$key])) {
                     $method = $prototype[$key];
+                    if(!is_callable($method)) {
+                        return $method;
+                    }
                     return $method($context);
                 }
             }
@@ -129,10 +135,13 @@ class S {
         }
 
         /**
-         * Look on Prototype
+         * Look on PHP Type Prototype
          */
         if(isset($prototype[$key])) {
             $method = $prototype[$key];
+            if(!is_callable($method)) {
+                return $method;
+            }
             return $method($context);
         }
 
