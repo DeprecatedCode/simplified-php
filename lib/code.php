@@ -1,4 +1,4 @@
-<pre><?php
+<?php
 
 S::$lib->Code = S::$lib->Entity;
 $X = &S::$lib->Code;
@@ -19,7 +19,7 @@ $X['run'] = function(&$context) {
     if(!isset($context['stack'])) {
         $context['stack'] = S::property($context, 'parse');
     }
-    print_r($context);
+    S::dump($context);
 };
 
 /**
@@ -54,7 +54,7 @@ $X['parse'] = function(&$context) {
     $nest = S::property($context, 'nest');
 
     $stack = array(
-        'word'    => '|#-#|',
+        'token'    => '|#-#|',
         'stop'     => '|#-#|',
         'nest'     => true,
         'children' => array(),
@@ -104,7 +104,7 @@ $X['parse'] = function(&$context) {
                         $queue = '';
                     }
                     $new = array(
-                        'word'     => $syntax[$chars],
+                        'token'     => $syntax[$chars],
                         'stop'     => $syntax[$chars],
                         'nest'     => isset($nest[$chars]),
                         'children' => array(),
@@ -125,7 +125,7 @@ $X['parse'] = function(&$context) {
     }
     $stack['children'][] = $queue;
     if($stack['parent'] !== null) {
-        throw new Exception("Unclosed block starting with $stack[word]");
+        throw new Exception("Unclosed block starting with $stack[token]");
     }
 
     remove_all_parents($stack);

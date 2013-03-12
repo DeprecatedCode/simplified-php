@@ -1,24 +1,32 @@
 <?php
 
 S::$lib->String = array();
+$X = &S::$lib->String;
 
 /**
  * String Constructor
  */
-S::$lib->String[S::CONSTRUCTOR] = function(&$context) {
+$X[S::CONSTRUCTOR] = function(&$context) {
     return "";
 };
 
 /**
  * String Length
  */
-S::$lib->String['length'] = function(&$context) {
+$X['length'] = function(&$context) {
     return strlen($context);
 };
 
 /**
  * String Print
  */
-S::$lib->String['print'] = function(&$context) {
+$X['print'] = function(&$context) {
     echo $context;
+};
+
+/**
+ * String HTML
+ */
+$X['__html__'] = function(&$context) {
+    return '<span class="string">' . htmlspecialchars($context) . '</span>';
 };

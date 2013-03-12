@@ -36,6 +36,7 @@ class S {
 
     public static $entities = array(
         "Entity",
+        "Boolean",
         "Code",
         "Expression",
         "File",
@@ -63,6 +64,18 @@ class S {
     public $Router;
     public $String;
     public $Void;
+
+    /**
+     * Dump
+     */
+    public static function dump(&$context) {
+        $tmp = array();
+        $style = S::property($tmp, '__css__');
+        $html = S::property($context, '__html__');
+        $style = '<style>' . $style . '</style>';
+        S::property($style, 'print');
+        S::property($html, 'print');exit;
+    }
 
     /**
      * Construct an Entity
@@ -105,19 +118,15 @@ class S {
             $type = S::$lib->Entity[S::TYPE];
             if(isset($context[S::TYPE])) {
                 $type = $context[S::TYPE];
-                $prototype = &S::$lib->$type;
-                if(isset($prototype[$key])) {
-                    $method = $prototype[$key];
-                    if(!is_callable($method)) {
-                        return $method;
-                    }
-                    return $method($context);
-                }
             }
-
-            /**
-             * Not Found
-             */
+            $prototype = &S::$lib->$type;
+            if(isset($prototype[$key])) {
+                $method = $prototype[$key];
+                if(!is_callable($method)) {
+                    return $method;
+                }
+                return $method($context);
+            }
             throw new Exception("Property '$key' Not Found on $type");
         }
 
@@ -130,6 +139,8 @@ class S {
             $prototype = &S::$lib->Number;
         } else if(is_null($context)) {
             $prototype = &S::$lib->Void;
+        } else if(is_bool($context)) {
+            $prototype = &S::$lib->Boolean;
         } else {
             throw new Exception("No Valid Type Found");
         }
@@ -149,6 +160,7 @@ class S {
          * Not Found
          */
         $type = $prototype[S::TYPE];
+        var_dump($prototype);
         throw new Exception("Property '$key' Not Found on $type");
     }
 }
