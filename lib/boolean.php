@@ -6,7 +6,7 @@ $X = &S::$lib->Boolean;
 /**
  * Boolean Constructor
  */
-S::$lib->Boolean[S::CONSTRUCTOR] = function(&$context) {
+$X[S::CONSTRUCTOR] = function(&$context) {
     return true;
 };
 

@@ -1,5 +1,5 @@
-SimplifiedPHP Hello World
-@author Nate Ferrero
+# SimplifiedPHP Hello World
+# @author Nate Ferrero
 
 url: Request.url
 

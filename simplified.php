@@ -47,12 +47,14 @@ class S {
         "Request",
         "Router",
         "String",
+        "System",
         "Void"
     );
 
     public static $lib;
 
     public $Entity;
+    public $Boolean;
     public $Code;
     public $Expression;
     public $File;
@@ -63,18 +65,20 @@ class S {
     public $Request;
     public $Router;
     public $String;
+    public $System;
     public $Void;
 
     /**
      * Dump
      */
     public static function dump(&$context) {
-        $tmp = array();
-        $style = S::property($tmp, '__css__');
+        $system = S::construct('System');
+        $style = S::property($system, '__css__');
         $html = S::property($context, '__html__');
         $style = '<style>' . $style . '</style>';
         S::property($style, 'print');
-        S::property($html, 'print');exit;
+        S::property($html, 'print');
+        exit;
     }
 
     /**
@@ -83,6 +87,9 @@ class S {
     public static function construct($type, $context=null) {
         $ref = &S::$lib->$type;
         $method = $ref[S::CONSTRUCTOR];
+        if(is_null($method)) {
+            throw new Exception("No constructor found on $type");
+        }
         return $method($context);
     }
 

@@ -83,6 +83,7 @@ $X['parse'] = function(&$context) {
                 $queue = '';
             }
             if($stack['parent'] === null) {
+                remove_all_parents($stack);
                 return $stack;
             }
             $stack =& $stack['parent'];
@@ -104,7 +105,7 @@ $X['parse'] = function(&$context) {
                         $queue = '';
                     }
                     $new = array(
-                        'token'     => $syntax[$chars],
+                        'token'    => $chars,
                         'stop'     => $syntax[$chars],
                         'nest'     => isset($nest[$chars]),
                         'children' => array(),
@@ -129,8 +130,6 @@ $X['parse'] = function(&$context) {
     }
 
     remove_all_parents($stack);
-
-    $queue = '';
     return $stack;
 };
 
