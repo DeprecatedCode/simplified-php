@@ -1,34 +1,33 @@
 <?php
 
-S::$lib->System = array();
-$X = &S::$lib->System;
+S::$lib->System = new stdClass;
 
 /**
  * System Constructor
  */
-$X[S::CONSTRUCTOR] = function(&$context) {
-    if(!is_array($context)) {
-        $context = array();
+S::$lib->System->{S::CONSTRUCTOR} = function($context) {
+    if(!is_object($context)) {
+        $context = new stdClass;
     }
-    $context[S::TYPE] = S::$lib->System[S::TYPE];
+    $context->{S::TYPE} = S::$lib->System->{S::TYPE};
     return $context;
 };
 
 /**
  * Debug CSS
  */
-$X['__css__'] = function(&$context) {
+S::$lib->System->__css__ = function($context) {
     return <<<EOF
 table.simplified-php-html {
     font-family: Monaco, "Droid Sans Mono", monospace;
     font-size: 13px;
     padding: 0;
+    margin: 0;
     border-collapse: collapse;
     border: none;
-    margin: 0;
     white-space: pre;
-    margin: -4px;
     background: none;
+    box-shadow: 0 0 1em rgba(0, 0, 0, 0.25);
 }
 table.simplified-php-html tr {
     background: white;
@@ -36,17 +35,21 @@ table.simplified-php-html tr {
 table.simplified-php-html tr:hover {
     background: rgba(255, 255, 127, 0.25);
 }
-table.simplified-php-html td {
+table.simplified-php-html td, table.simplified-php-html th {
     padding: 4px;
     vertical-align: top;
-    border-bottom: 2px solid #ccc;
+    border: 1px solid #ccc;
 }
-table.simplified-php-html tr:last-child > td {
-    border-bottom: none;
+table.simplified-php-html th {
+    padding: 6px;
+    background: #eee;
+    font-weight: bold;
+    font-size: 85%;
+    color: #444;
 }
 table.simplified-php-html td.key {
     text-align: right;
-    border-right: 2px solid #ccc;
+    border-right: 1px solid #ccc;
 }
 table.simplified-php-html span.string {
     color: darkgreen;

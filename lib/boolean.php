@@ -5,13 +5,13 @@ S::$lib->Boolean = new stdClass;
 /**
  * Boolean Constructor
  */
-$X[S::CONSTRUCTOR] = function(&$context) {
+S::$lib->Boolean->{S::CONSTRUCTOR} = function($context) {
     return true;
 };
 
 /**
- * Boolean HTML
+ * Boolean String
  */
-$X['__html__'] = function(&$context) {
-    return '<span class="boolean">' . ($context ? 'True' : 'False') . '</span>';
+S::$lib->Boolean->__string__ = function($context) {
+    return $context ? 'True' : 'False';
 };

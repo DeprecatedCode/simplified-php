@@ -84,8 +84,8 @@ S::$lib->Code->parse = function($context) {
         $slen = strlen($stack->stop);
         $chars = substr(
             $context->code, $pos, $slen
-        );echo "`$stack->stop vs $chars`<br/>";
-        if($chars === $stack->stop) {echo "<b>STOP</b><br/>Queue: $queue<br/>";
+        );
+        if($chars === $stack->stop) {
             if(strlen($queue) > 0) {
                 $stack->children[] = $queue;
                 $queue = '';
@@ -95,7 +95,6 @@ S::$lib->Code->parse = function($context) {
                 return $stack;
             }
             $pp = $stack->super->stop;
-            echo "NEW CLOSE: $pp<br/>";
             $stack = $stack->super;
             $pos += $slen - 1;
             continue;
