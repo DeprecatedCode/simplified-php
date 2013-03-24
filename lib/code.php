@@ -55,8 +55,6 @@ S::$lib->Code->parse = function($context) {
     $col = 0;
 
     $stack = new stdClass;
-    $stack->token    = '|#-#|';
-    $stack->stop     = '|#-#|';
     $stack->nest     = true;
     $stack->children = array();
     $stack->super    = null;
@@ -81,23 +79,24 @@ S::$lib->Code->parse = function($context) {
          * First, check for the current stop.
          * If found and null super, return.
          */
-        $slen = strlen($stack->stop);
-        $chars = substr(
-            $context->code, $pos, $slen
-        );
-        if($chars === $stack->stop) {
-            if(strlen($queue) > 0) {
-                $stack->children[] = $queue;
-                $queue = '';
+        if(isset($stack->stop)) {
+            $slen = strlen($stack->stop);
+            $chars = substr(
+                $context->code, $pos, $slen
+            );
+            if($chars === $stack->stop) {
+                if(strlen($queue) > 0) {
+                    $stack->children[] = $queue;
+                    $queue = '';
+                }
+                if($stack->super === null) {
+                    remove_all_supers($stack);
+                    return $stack;
+                }
+                $stack = $stack->super;
+                $pos += $slen - 1;
+                continue;
             }
-            if($stack->super === null) {
-                remove_all_supers($stack);
-                return $stack;
-            }
-            $pp = $stack->super->stop;
-            $stack = $stack->super;
-            $pos += $slen - 1;
-            continue;
         }
         
         /**
@@ -142,7 +141,7 @@ S::$lib->Code->parse = function($context) {
     }
 
     remove_all_supers($stack);
-    return $stack;
+    return $stack->children;
 };
 
 /**
