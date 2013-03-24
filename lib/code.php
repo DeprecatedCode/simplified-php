@@ -1,23 +1,21 @@
 <?php
 
-S::$lib->Code = S::$lib->Entity;
-$X = &S::$lib->Code;
+S::$lib->Code = clone S::$lib->Entity;
 
 /**
  * Code Constructor
  */
-$X[S::CONSTRUCTOR] = function(&$context) {
-    $X = &S::$lib->Code;
-    $context[S::TYPE] = $X[S::TYPE];
+S::$lib->Code->{S::CONSTRUCTOR} = function($context) {
+    $context->{S::TYPE} = S::$lib->Code->{S::TYPE};
     return $context;
 };
 
 /**
  * Code Run
  */
-$X['run'] = function(&$context) {
-    if(!isset($context['stack'])) {
-        $context['stack'] = S::property($context, 'parse');
+S::$lib->Code->run = function($context) {
+    if(!isset($context->stack)) {
+        $context->stack = S::property($context, 'parse');
     }
     S::dump($context);
 };
@@ -25,7 +23,7 @@ $X['run'] = function(&$context) {
 /**
  * Code Syntax
  */
-$X['syntax'] = array(
+S::$lib->Code->syntax = array(
       '(' => ')'   ,
       '[' => ']'   ,
       '{' => '}'   ,
@@ -40,7 +38,7 @@ $X['syntax'] = array(
 /**
  * Syntax Nesting
  */
-$X['nest'] = array(
+S::$lib->Code->nest = array(
     '(' => 1,
     '[' => 1,
     '{' => 1
@@ -49,19 +47,23 @@ $X['nest'] = array(
 /**
  * Code Parse
  */
-$X['parse'] = function(&$context) {
+S::$lib->Code->parse = function($context) {
     $syntax = S::property($context, 'syntax');
     $nest = S::property($context, 'nest');
 
-    $stack = array(
-        'token'    => '|#-#|',
-        'stop'     => '|#-#|',
-        'nest'     => true,
-        'children' => array(),
-        'parent'   => null
-    );
+    $line = 1;
+    $col = 0;
 
-    $length = strlen($context['code']);
+    $stack = new stdClass;
+    $stack->token    = '|#-#|';
+    $stack->stop     = '|#-#|';
+    $stack->nest     = true;
+    $stack->children = array();
+    $stack->super    = null;
+    $stack->line     = $line;
+    $stack->col      = $col;
+
+    $length = strlen($context->code);
     $queue = '';
 
     /**
@@ -69,24 +71,32 @@ $X['parse'] = function(&$context) {
      */
     for($pos = 0; $pos < $length; $pos++) {
 
+        $col += 1;
+        if($context->code[$pos] == "\n") {
+            $col = 0;
+            $line ++;
+        }
+
         /**
          * First, check for the current stop.
-         * If found and null parent, return.
+         * If found and null super, return.
          */
-        $slen = strlen($stack['stop']);
+        $slen = strlen($stack->stop);
         $chars = substr(
-            $context['code'], $pos, $slen
-        );
-        if($chars === $stack['stop']) {
+            $context->code, $pos, $slen
+        );echo "`$stack->stop vs $chars`<br/>";
+        if($chars === $stack->stop) {echo "<b>STOP</b><br/>Queue: $queue<br/>";
             if(strlen($queue) > 0) {
-                $stack['children'][] = $queue;
+                $stack->children[] = $queue;
                 $queue = '';
             }
-            if($stack['parent'] === null) {
-                remove_all_parents($stack);
+            if($stack->super === null) {
+                remove_all_supers($stack);
                 return $stack;
             }
-            $stack =& $stack['parent'];
+            $pp = $stack->super->stop;
+            echo "NEW CLOSE: $pp<br/>";
+            $stack = $stack->super;
             $pos += $slen - 1;
             continue;
         }
@@ -94,25 +104,28 @@ $X['parse'] = function(&$context) {
         /**
          * Search for matching characters, from 3 to 1
          */
-        if($stack['nest']) {
+        if($stack->nest) {
             for($blen = 3; $blen >= 1; $blen--) {
                 $chars = substr(
-                    $context['code'], $pos, $blen
+                    $context->code, $pos, $blen
                 );
                 if(isset($syntax[$chars])) {
                     if(strlen($queue) > 0) {
-                        $stack['children'][] = $queue;
+                        $stack->children[] = $queue;
                         $queue = '';
                     }
-                    $new = array(
-                        'token'    => $chars,
-                        'stop'     => $syntax[$chars],
-                        'nest'     => isset($nest[$chars]),
-                        'children' => array(),
-                        'parent'   => &$stack
-                    );
-                    $stack['children'][] = &$new;
-                    $stack = &$new;
+
+                    $new = new stdClass;
+                    $new->token    = $chars;
+                    $new->stop     = $syntax[$chars];
+                    $new->nest     = isset($nest[$chars]);
+                    $new->children = array();
+                    $new->super    = $stack;
+                    $new->line     = $line;
+                    $new->col      = $col;
+
+                    $stack->children[] = $new;
+                    $stack = $new;
                     $pos += $blen - 1;
                     continue 2;
                 }
@@ -122,25 +135,25 @@ $X['parse'] = function(&$context) {
         /**
          * No match, add to queue and continue
          */
-        $queue .= $context['code'][$pos];
+        $queue .= $context->code[$pos];
     }
-    $stack['children'][] = $queue;
-    if($stack['parent'] !== null) {
-        throw new Exception("Unclosed block starting with $stack[token]");
+    $stack->children[] = $queue;
+    if($stack->super !== null) {
+        throw new Exception("Unclosed block starting with `$stack->token` at line $stack->line column $stack->col in $context[label]");
     }
 
-    remove_all_parents($stack);
+    remove_all_supers($stack);
     return $stack;
 };
 
 /**
- * Utility Method: Remove all parents
+ * Utility Method: Remove all supers
  */
-function remove_all_parents(&$arr) {
-    unset($arr['parent']);
-    foreach($arr['children'] as &$child) {
-        if(is_array($child)) {
-            remove_all_parents($child);
+function remove_all_supers(&$obj) {
+    unset($obj->super);
+    foreach($obj->children as $child) {
+        if(is_object($child)) {
+            remove_all_supers($child);
         }
     }
 }

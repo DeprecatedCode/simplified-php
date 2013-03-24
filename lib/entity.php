@@ -1,26 +1,25 @@
 <?php
 
-S::$lib->Entity = array();
-$X = &S::$lib->Entity;
+S::$lib->Entity = new stdClass;
 
 /**
  * Entity Constructor
  */
-$X[S::CONSTRUCTOR] = function(&$context) {
+S::$lib->Entity->${S::CONSTRUCTOR} = function($context) {
     return $context;
 };
 
 /**
  * Entity Length
  */
-$X['length'] = function(&$context) {
-    return count($context) - (int) isset($context[S::TYPE]);
+S::$lib->Entity->length = function($context) {
+    return count($context) - (int) isset($context->{S::TYPE});
 };
 
 /**
  * Entity HTML
  */
-$X['__html__'] = function(&$context) {
+S::$lib->Entity->__html__ = function($context) {
     static $depth = 0;
     $html = '';
     $html .= '<table class="simplified-php-html">';

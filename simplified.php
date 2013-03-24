@@ -9,9 +9,14 @@
  * Complete Process
  */
 if(is_object(S::$lib)) {
-    $code = S::construct('Code', array(
-        'code' => ob_get_clean()
-    ));
+    $context = new stdClass;
+    $context->code = ob_get_clean();
+    $context->label = $_SERVER['SCRIPT_FILENAME'];
+
+    /**
+     * Code object
+     */
+    $code = S::construct('Code', $context);
     S::property($code, 'run');
     exit;
 }
@@ -20,8 +25,19 @@ if(is_object(S::$lib)) {
  * Error Handler
  */
 set_error_handler(function($num, $str, $file, $line) {
-    echo "$str on line $line of $file\n\n";
-    debug_print_backtrace();
+    throw new ErrorException($str, $num, 1, $file, $line);
+});
+
+/**
+ * Exception Handler
+ */
+set_exception_handler(function($exc) {
+    $str = $exc->getMessage();
+    $line = $exc->getLine();
+    $file = $exc->getFile();
+    $type = get_class($exc);
+    echo "$type: $str<br/><br/>\nRaised on line $line of $file<br/><br/>\n";
+    echo nl2br(htmlspecialchars($exc->getTraceAsString()));
     exit;
 });
 
@@ -97,19 +113,19 @@ class S {
      * Get a property of an Entity
      */
     public static function property(&$context, $key) {
-        if(is_array($context)) {
+        if($context instanceof stdClass) {
 
             /**
              * Handle Standard Values
              */
-            if(isset($context[$key])) {
-                $value = $context[$key];
+            if(isset($context->$key)) {
+                $value = $context->$key;
 
                 /**
                  * Immediately Execute
                  */
-                if(is_array($value) && isset($value[S::IMMEDIATE])) {
-                    $method = $value[S::IMMEDIATE];
+                if($value instanceof stdClass && isset($value->${S::IMMEDIATE})) {
+                    $method = $value->${S::IMMEDIATE};
                     if(!is_callable($method)) {
                         return $method;
                     }
@@ -183,8 +199,7 @@ S::$lib = new S();
 foreach(S::$entities as $entity) {
     $path = strtolower($entity);
     require_once(__DIR__ . "/lib/$path.php");
-    $ref = &S::$lib->$entity;
-    $ref[S::TYPE] = $entity;
+    S::$lib->$entity->{S::TYPE} = $entity;
 }
 
 /**

@@ -1,7 +1,6 @@
 <?php
 
-S::$lib->Boolean = array();
-$X = &S::$lib->Boolean;
+S::$lib->Boolean = new stdClass;
 
 /**
  * Boolean Constructor
