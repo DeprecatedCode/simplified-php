@@ -86,7 +86,7 @@ S::$lib->Code->parse = function($context) {
             );
             if($chars === $stack->stop) {
                 if(strlen($queue) > 0) {
-                    $stack->children[] = $queue;
+                    parse_expression($queue, $stack);
                     $queue = '';
                 }
                 if($stack->super === null) {
@@ -109,7 +109,7 @@ S::$lib->Code->parse = function($context) {
                 );
                 if(isset($syntax[$chars])) {
                     if(strlen($queue) > 0) {
-                        $stack->children[] = $queue;
+                        parse_expression($queue, $stack);
                         $queue = '';
                     }
 
@@ -135,9 +135,11 @@ S::$lib->Code->parse = function($context) {
          */
         $queue .= $context->code[$pos];
     }
-    $stack->children[] = $queue;
+    parse_expression($queue, $stack);
+    $queue = '';
     if($stack->super !== null) {
-        throw new Exception("Unclosed block starting with `$stack->token` at line $stack->line column $stack->col in $context[label]");
+        throw new Exception("Unclosed block starting with `$stack->token` " .
+            "at line $stack->line column $stack->col in $context[label]");
     }
 
     remove_all_supers($stack);
@@ -145,12 +147,42 @@ S::$lib->Code->parse = function($context) {
 };
 
 /**
+ * Utility Method: Parse expression
+ */
+function parse_expression($expr, &$stack) {
+    if(!$stack->nest) {
+        $stack->children[] = $expr;
+        return;
+    }
+    $regex = array(
+        '[a-zA-Z0-9_]+' => 'identifier',
+        '[^\sa-zA-Z0-9_]+'           => 'operator',
+        '\s+'           => null
+    );
+    while(strlen($expr) > 0) {
+        foreach($regex as $re => $type) {
+            $match = preg_match(";^$re;", $expr, $groups);
+            if($match) {
+                $expr = substr($expr, strlen($groups[0]));
+                if(!is_null($type)) {
+                    $obj = new stdClass;
+                    $obj->$type = $groups[0];
+                    $stack->children[] = $obj;
+                }
+            }
+        }
+    }
+}
+
+/**
  * Utility Method: Remove all supers
  */
 function remove_all_supers(&$obj) {
     unset($obj->super);
+    unset($obj->stop);
+    unset($obj->nest);
     foreach($obj->children as $child) {
-        if(is_object($child)) {
+        if(is_object($child) && isset($child->children)) {
             remove_all_supers($child);
         }
     }
