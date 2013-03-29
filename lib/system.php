@@ -20,14 +20,17 @@ S::$lib->System->__css__ = function($context) {
     return <<<EOF
 table.simplified-php-html {
     font-family: Monaco, "Droid Sans Mono", monospace;
-    font-size: 13px;
+    font-size: 12px;
     padding: 0;
-    margin: 0;
+    margin: -5px;
     border-collapse: collapse;
     border: none;
     white-space: pre;
     background: none;
-    box-shadow: 0 0 1em rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 1em rgba(0, 0, 0, 0.2);
+}
+body > table.simplified-php-html {
+    margin: -9px !important;
 }
 table.simplified-php-html tr {
     background: white;
