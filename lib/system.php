@@ -17,7 +17,7 @@ function _system_inspect($selected) {
     #sphp-debug-switch a:hover {background: #ccc; color: #444;}
     #sphp-debug-switch a.sphp-active {background: #333; color: #fff;}
     </style>";
-    $modes = explode(" ", "request code stack entity output close");
+    $modes = explode(" ", "request code stack entity output tests close");
     $url = $_SERVER['REQUEST_URI'];
     $a = array();
     $re = ';\!\=[a-z0-9]+;';

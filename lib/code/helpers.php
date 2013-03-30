@@ -283,7 +283,7 @@ function _code_clean_stack(&$obj) {
             case "'":
             case '"""':
             case "'''":
-                $obj->string = implode('', $obj->children);
+                $obj->string = stripcslashes(implode('', $obj->children));
                 break;
             /**
              * Clean comments

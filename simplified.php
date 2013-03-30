@@ -24,6 +24,16 @@ if(is_object(S::$lib)) {
     $request = S::construct('Request');
     if(isset($request->args['!'])) {
         switch($request->args['!']) {
+            case 'tests':
+                $test = S::construct('Test');
+                $apply = S::property($test, '__apply_list__');
+                $apply(__DIR__ . '/tests');
+                $html = S::property($test, '__html__');
+                $system = S::construct('System');
+                $style = S::property($system, '__style__');
+                S::property($style, 'print');
+                S::property($html, 'print');
+                return;
             case 'stack':
                 _system_inspect('stack');
                 $context->stack = S::property($code, 'parse');
@@ -43,12 +53,19 @@ if(is_object(S::$lib)) {
                 _system_inspect('entity');
                 $entity = new stdClass;
                 $context->stack = S::property($code, 'parse');
+                ob_start();
                 _code_apply_stack($context->stack, $entity);
+                ob_end_clean();
                 S::dump($entity);
                 return;
             case 'output':
                 _system_inspect('output');
+                ob_start();
                 S::property($code, 'run');
+                $str = ob_get_clean();
+                echo "<pre>";
+                echo htmlspecialchars($str);
+                echo "</pre>";
                 return;
         }
     }
@@ -104,6 +121,7 @@ class S {
         "Router",
         "String",
         "System",
+        "Test",
         "Void"
     );
 
@@ -123,6 +141,7 @@ class S {
     public $Router;
     public $String;
     public $System;
+    public $Test;
     public $Void;
 
     /**
