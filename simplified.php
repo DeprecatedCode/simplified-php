@@ -81,6 +81,8 @@ set_exception_handler(function($exc) {
  * Simplified Class
  */
 class S {
+    
+    const VERSION = '0.0.1';
 
     const CONSTRUCTOR = '#constructor';
     const IMMEDIATE = '#immediate';

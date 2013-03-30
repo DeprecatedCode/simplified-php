@@ -6,16 +6,18 @@
  */
 function _system_inspect($selected) {
     echo "<style>#sphp-debug-switch {position: relative; top: -1px; right: -1px;
-        padding: 0.5em; margin-bottom: 16px; background: #eee;
+        padding: 8px 8px 9px; margin: -8px -1px 9px -1px; background: #eee;
         border: 1px solid #ccc; font-size: 11px;
-        font-family: Tahoma, 'Lucida Grande', Arial, Ubuntu, sans-serif;
-        color: #aaa;
+        box-shadow: inset 0 -0.25em 1em #ccc;
+        font-family: Verdana, Tahoma, 'Lucida Grande', Arial, Ubuntu, sans-serif;
+        color: #bbb;
     }
-    #sphp-debug-switch a {color: #666; text-decoration: none; padding: 2px 3px;}
-    #sphp-debug-switch a:hover {background: #ddd;}
-    #sphp-debug-switch a.sphp-active {background: #666; color: #eee;}
+    #sphp-debug-switch a {color: #666; text-decoration: none; padding: 2px 4px 3px;
+        border-radius: 3px;}
+    #sphp-debug-switch a:hover {background: #ccc; color: #444;}
+    #sphp-debug-switch a.sphp-active {background: #333; color: #fff;}
     </style>";
-    $modes = explode(" ", "request code stack entity output");
+    $modes = explode(" ", "request code stack entity output close");
     $url = $_SERVER['REQUEST_URI'];
     $a = array();
     $re = ';\!\=[a-z0-9]+;';
@@ -26,8 +28,8 @@ function _system_inspect($selected) {
         $x .= ucfirst($mode) . '</a>';
         $a[] = $x;
     }
-    echo '<div id="sphp-debug-switch">SPHP &raquo; ';
-    echo implode(' | ', $a);
+    echo '<div id="sphp-debug-switch">SimplifiedPHP ' . S::VERSION . '&nbsp; &middot; ';
+    echo implode(' &middot; ', $a);
     echo '</div>';
 }
 
@@ -67,7 +69,7 @@ table.simplified-php-html {
     box-shadow: 0 0 1em rgba(0, 0, 0, 0.2);
 }
 body > table.simplified-php-html {
-    margin: -9px !important;
+    margin: 0px !important;
 }
 table.simplified-php-html tr {
     background: white;
