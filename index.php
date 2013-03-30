@@ -13,3 +13,5 @@ header.print
 variable: [key: {!"Value"}
     line14: "Line 14" + " is the best line."
 ]
+
+test: variable.key

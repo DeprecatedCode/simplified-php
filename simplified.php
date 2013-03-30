@@ -25,17 +25,30 @@ if(is_object(S::$lib)) {
     if(isset($request->args['!'])) {
         switch($request->args['!']) {
             case 'stack':
+                _system_inspect('stack');
                 $context->stack = S::property($code, 'parse');
                 S::dump($context);
                 return;
+            case 'code':
+                _system_inspect('code');
+                echo "<pre>";
+                echo htmlspecialchars($code->code);
+                echo "</pre>";
+                return;
             case 'request':
+                _system_inspect('request');
                 S::dump($request);
                 return;
             case 'entity':
+                _system_inspect('entity');
                 $entity = new stdClass;
                 $context->stack = S::property($code, 'parse');
                 _code_apply_stack($context->stack, $entity);
                 S::dump($entity);
+                return;
+            case 'output':
+                _system_inspect('output');
+                S::property($code, 'run');
                 return;
         }
     }
@@ -198,8 +211,12 @@ class S {
                 /**
                  * Immediately Execute
                  */
-                if($value instanceof stdClass && isset($value->${S::IMMEDIATE})) {
-                    $method = $value->${S::IMMEDIATE};
+                if($value instanceof stdClass && isset($value->{S::IMMEDIATE})) {
+                    $method = $value->{S::IMMEDIATE};
+                    if($method === true) {
+                        $run = S::property($value, 'run');
+                        return $run($context);
+                    }
                     if(!is_callable($method)) {
                         return $method;
                     }

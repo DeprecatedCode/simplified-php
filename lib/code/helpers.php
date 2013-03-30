@@ -10,7 +10,11 @@ class CodeException extends Exception {
     public function __construct($item, $message) {
         $this->item = $item;
         $pos = 'line ' . $item->{'#line'} .
-            ', column ' . $item->{'#column'}; 
+            ', column ' . $item->{'#column'};
+        if($message instanceof Exception) {
+            $message = $message->getMessage() . " [internal error at " .
+                $message->getFile() . " line " . $message->getLine() . ']';
+        }
         $message = "$message near $pos";
         return parent::__construct($message);
     }
@@ -25,6 +29,11 @@ function _code_apply_stack($stack, &$entity) {
      * Evaluate Expressions
      */
     if(S::is($entity, 'Expression')) {
+        if(isset($stack[0]) && isset($stack[0]->operator)
+            && $stack[0]->operator == '!') {
+            array_shift($stack);
+            $entity->{S::IMMEDIATE} = true;
+        }
         $entity->stack = $stack;
     }
     
@@ -182,7 +191,7 @@ function _code_reduce_value(&$stack, &$context) {
                     $value = $operation($value, $x);
                 }
             } catch(Exception $e) {
-                throw new CodeException($item, $e->getMessage());
+                throw new CodeException($item, $e);
             }
             $operation = $noop;
         } else if(isset($item->string)) {

@@ -1,5 +1,36 @@
 <?php
 
+
+/**
+ * System Inspect Switcher
+ */
+function _system_inspect($selected) {
+    echo "<style>#sphp-debug-switch {position: relative; top: -1px; right: -1px;
+        padding: 0.5em; margin-bottom: 16px; background: #eee;
+        border: 1px solid #ccc; font-size: 11px;
+        font-family: Tahoma, 'Lucida Grande', Arial, Ubuntu, sans-serif;
+        color: #aaa;
+    }
+    #sphp-debug-switch a {color: #666; text-decoration: none; padding: 2px 3px;}
+    #sphp-debug-switch a:hover {background: #ddd;}
+    #sphp-debug-switch a.sphp-active {background: #666; color: #eee;}
+    </style>";
+    $modes = explode(" ", "request code stack entity output");
+    $url = $_SERVER['REQUEST_URI'];
+    $a = array();
+    $re = ';\!\=[a-z0-9]+;';
+    foreach($modes as $mode) {
+        $c = strpos($url, '!=' . $mode) > -1 ? 'sphp-active' : '';
+        $x = '<a href="' .
+            preg_replace($re, '!=' . $mode, $url) . '" class="'.$c.'">';
+        $x .= ucfirst($mode) . '</a>';
+        $a[] = $x;
+    }
+    echo '<div id="sphp-debug-switch">SPHP &raquo; ';
+    echo implode(' | ', $a);
+    echo '</div>';
+}
+
 S::$lib->System = new stdClass;
 
 /**
