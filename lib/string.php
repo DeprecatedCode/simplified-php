@@ -34,5 +34,5 @@ S::$lib->String->__string__ = function($context) {
  * String HTML
  */
 S::$lib->String->__html__ = function($context) {
-    return '<span class="string">' . htmlspecialchars($context) . '</span>';
+    return '<span class="string">&quot;' . htmlspecialchars($context) . '&quot;</span>';
 };

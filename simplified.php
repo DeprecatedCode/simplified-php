@@ -89,7 +89,7 @@ class S {
     /**
      * Dump
      */
-    public static function dump(&$context) {
+    public static function dump($context) {
         $system = S::construct('System');
         $style = S::property($system, '__css__');
         $html = S::property($context, '__html__');
@@ -107,7 +107,55 @@ class S {
         if(is_null($method)) {
             throw new Exception("No constructor found on $type");
         }
+        if(is_null($context)) {
+            $context = new stdClass;
+        }
         return $method($context);
+    }
+    
+    /**
+     * Test for a match
+     */
+    public static function is(&$context, $type) {
+        if(is_string($context)) {
+            return $type === 'String';
+        } else if(is_integer($context) || is_float($context)) {
+            return $type === 'Number';
+        } else if(is_array($context)) {
+            return $type === 'List';
+        } else if(is_null($context)) {
+            return $type === 'Void';
+        } else if(is_bool($context)) {
+            return $type === 'Boolean';
+        } else if($context instanceof stdClass) {
+            if(isset($context->{S::TYPE})) {
+                return $type === S::TYPE;
+            }
+            return $type === 'Entity';
+        }
+    }
+    
+    /**
+     * Describe Type
+     */
+    public static function type(&$context, $type) {
+        if(is_string($context)) {
+            return 'String';
+        } else if(is_integer($context) || is_float($context)) {
+            return 'Number';
+        } else if(is_array($context)) {
+            return 'List';
+        } else if(is_null($context)) {
+            return 'Void';
+        } else if(is_bool($context)) {
+            return 'Boolean';
+        } else if($context instanceof stdClass) {
+            if(isset($context->{S::TYPE})) {
+                return S::TYPE;
+            }
+            return 'Entity';
+        }
+        return 'Unknown';
     }
 
     /**
@@ -168,7 +216,25 @@ class S {
         } else if(is_bool($context)) {
             $prototype = S::$lib->Boolean;
         } else {
-            throw new Exception("No valid type found for:" . print_r($context, true));
+            if($key === 'print') {
+                if($context instanceof Closure) {
+                    $repr = print_r($context, true);
+                    $repr = substr($repr, strpos($repr, "[parameter]") + 29);
+                    $match = preg_match_all(";\[(.+?)\];", $repr, $groups);
+                    if($match) {
+                        $args = $groups[1];
+                    } else {
+                        $args = array();
+                    }
+                    $x = implode(', ', $args);
+                    echo "{native}[$x]";
+                }
+                else {
+                    echo "[native]";
+                }
+                return;
+            }
+            throw new Exception("No valid type found for PHP.$key:" . print_r($context, true));
         }
 
         /**
@@ -186,7 +252,6 @@ class S {
          * Not Found
          */
         $type = $prototype->{S::TYPE};
-        var_dump($prototype);
         throw new Exception("Property '$key' Not Found on $type");
     }
 }
@@ -221,6 +286,15 @@ foreach(S::$entities as $entity) {
     if(!isset(S::$lib->$entity->print)) {
         S::$lib->$entity->print = function($context) {
             echo S::property($context, '__string__');
+        };
+    }
+    
+    /**
+     * String Value
+     */
+    if(!isset(S::$lib->$entity->__string__)) {
+        S::$lib->$entity->__string__ = function($context) use($entity) {
+            echo $entity;
         };
     }
 }

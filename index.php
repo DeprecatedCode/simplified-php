@@ -5,3 +5,11 @@ header: File("site/header.php").run.html
 
 # Output
 header.print
+
+/**
+ * Comment in block,
+ * spanning multiple lines.
+ */
+variable: [key: {!"Value"}
+    line14: "Line 14"
+]

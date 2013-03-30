@@ -14,6 +14,12 @@ S::$lib->System->{S::CONSTRUCTOR} = function($context) {
 };
 
 /**
+ * Operators
+ */
+S::$lib->System->operators = new stdClass;
+require_once(__DIR__ . '/system/operators.php');
+
+/**
  * Debug CSS
  */
 S::$lib->System->__css__ = function($context) {
@@ -66,11 +72,8 @@ table.simplified-php-html span.number {
 table.simplified-php-html span.boolean {
     color: darkblue;
 }
-table.simplified-php-html span.string:before {
-    content: '"';
-}
-table.simplified-php-html span.string:after {
-    content: '"';
+table.simplified-php-html span.info {
+    color: gray;
 }
 EOF;
 };

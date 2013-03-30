@@ -1,6 +1,6 @@
 <?php
 
-S::$lib->Router = S::$lib->Entity;
+S::$lib->Router = clone S::$lib->Entity;
 
 /**
  * Router Constructor

@@ -1,5 +1,7 @@
 <?php
 
+require_once(__DIR__ . '/code/helpers.php');
+
 S::$lib->Code = clone S::$lib->Entity;
 
 /**
@@ -17,7 +19,28 @@ S::$lib->Code->run = function($context) {
     if(!isset($context->stack)) {
         $context->stack = S::property($context, 'parse');
     }
-    S::dump($context);
+    $request = S::construct('Request');
+    $entity = S::construct('Entity');
+    if(isset($request->args['!'])) {
+        switch($request->args['!']) {
+            case 'stack':
+                S::dump($context);
+                return;
+            case 'request':
+                S::dump($request);
+                return;
+            case 'entity':
+                _code_apply_stack($context->stack, $entity);
+                S::dump($entity);
+                return;
+        }
+    }
+    
+    /**
+     * Actually process the code
+     */
+    _code_apply_stack($context->stack, $entity);
+    return $entity;
 };
 
 /**
@@ -52,14 +75,16 @@ S::$lib->Code->parse = function($context) {
     $nest = S::property($context, 'nest');
 
     $line = 1;
-    $col = 0;
+    $column = 0;
+    $ql = 1;
+    $qc = 0;
 
     $stack = new stdClass;
     $stack->nest     = true;
     $stack->children = array();
     $stack->super    = null;
-    $stack->line     = $line;
-    $stack->col      = $col;
+    $stack->{'#line'}     = $line;
+    $stack->{'#column'}   = $column;
 
     $length = strlen($context->code);
     $queue = '';
@@ -69,10 +94,13 @@ S::$lib->Code->parse = function($context) {
      */
     for($pos = 0; $pos < $length; $pos++) {
 
-        $col += 1;
-        if($context->code[$pos] == "\n") {
-            $col = 0;
-            $line ++;
+        if($context->code[$pos] == "\r") {
+            ;
+        } else if($context->code[$pos] == "\n") {
+            $column = 0;
+            $line++;
+        } else {
+            $column++;
         }
 
         /**
@@ -85,12 +113,12 @@ S::$lib->Code->parse = function($context) {
                 $context->code, $pos, $slen
             );
             if($chars === $stack->stop) {
-                if(strlen($queue) > 0) {
-                    parse_expression($queue, $stack);
+                if($queue !== '') {
+                    _code_parse_expression($queue, $stack, $ql, $qc);
                     $queue = '';
                 }
                 if($stack->super === null) {
-                    remove_all_supers($stack);
+                    _code_clean_stack($stack);
                     return $stack;
                 }
                 $stack = $stack->super;
@@ -108,8 +136,8 @@ S::$lib->Code->parse = function($context) {
                     $context->code, $pos, $blen
                 );
                 if(isset($syntax[$chars])) {
-                    if(strlen($queue) > 0) {
-                        parse_expression($queue, $stack);
+                    if($queue !== '') {
+                        _code_parse_expression($queue, $stack, $ql, $qc);
                         $queue = '';
                     }
 
@@ -119,8 +147,8 @@ S::$lib->Code->parse = function($context) {
                     $new->nest     = isset($nest[$chars]);
                     $new->children = array();
                     $new->super    = $stack;
-                    $new->line     = $line;
-                    $new->col      = $col;
+                    $new->{'#line'}     = $line;
+                    $new->{'#column'}   = $column;
 
                     $stack->children[] = $new;
                     $stack = $new;
@@ -133,57 +161,26 @@ S::$lib->Code->parse = function($context) {
         /**
          * No match, add to queue and continue
          */
+        if($queue === '') {
+            /**
+             * Note: If the queue is empty and the first character
+             * is a newline, $line has already been incremented
+             * above. We need to account for that and subtract 1.
+             */
+            $ql = $line - ($context->code[$pos] === "\n" ? 1 : 0);
+            $qc = $column;
+        }
         $queue .= $context->code[$pos];
     }
-    parse_expression($queue, $stack);
+    _code_parse_expression($queue, $stack, $ql, $qc);
     $queue = '';
     if($stack->super !== null) {
+        $sline = $stack->{'#line'};
+        $scolumn = $stack->{'#column'};
         throw new Exception("Unclosed block starting with `$stack->token` " .
-            "at line $stack->line column $stack->col in $context[label]");
+            "at line $sline column $scolumn in $context[label]");
     }
 
-    remove_all_supers($stack);
+    _code_clean_stack($stack);
     return $stack->children;
 };
-
-/**
- * Utility Method: Parse expression
- */
-function parse_expression($expr, &$stack) {
-    if(!$stack->nest) {
-        $stack->children[] = $expr;
-        return;
-    }
-    $regex = array(
-        '[a-zA-Z0-9_]+' => 'identifier',
-        '[^\sa-zA-Z0-9_]+'           => 'operator',
-        '\s+'           => null
-    );
-    while(strlen($expr) > 0) {
-        foreach($regex as $re => $type) {
-            $match = preg_match(";^$re;", $expr, $groups);
-            if($match) {
-                $expr = substr($expr, strlen($groups[0]));
-                if(!is_null($type)) {
-                    $obj = new stdClass;
-                    $obj->$type = $groups[0];
-                    $stack->children[] = $obj;
-                }
-            }
-        }
-    }
-}
-
-/**
- * Utility Method: Remove all supers
- */
-function remove_all_supers(&$obj) {
-    unset($obj->super);
-    unset($obj->stop);
-    unset($obj->nest);
-    foreach($obj->children as $child) {
-        if(is_object($child) && isset($child->children)) {
-            remove_all_supers($child);
-        }
-    }
-}
