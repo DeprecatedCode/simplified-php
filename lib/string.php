@@ -17,6 +17,15 @@ S::$lib->String->length = function($context) {
 };
 
 /**
+ * String Apply
+ */
+S::$lib->String->__apply_string__ = function(&$context) {
+    return function(&$string) use($context) {
+        return $context . $string;
+    };
+};
+
+/**
  * String to Code
  */
 S::$lib->String->code = function($context) {
@@ -28,6 +37,20 @@ S::$lib->String->code = function($context) {
  */
 S::$lib->String->print = function($context) {
     echo $context;
+};
+
+/**
+ * String HTML
+ */
+S::$lib->String->html = function($context) {
+    return str_replace("\n", "<br/>\n", $context);
+};
+
+/**
+ * String Lines
+ */
+S::$lib->String->lines = function($context) {
+    return explode("\n", $context);
 };
 
 /**

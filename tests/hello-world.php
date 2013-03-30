@@ -3,9 +3,11 @@
 
 url: Request.url
 
-"Hello World".print
+"Hello World, some simple math: 5 + 4 = ".print
 
-"\n<br />\n".print
+5 + 4.print
+
+"\n\n".html.print
 
 "<?php echo "Hola... "; ?>".print
 

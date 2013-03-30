@@ -187,7 +187,11 @@ function _code_reduce_value(&$stack, &$context) {
                     /**
                      * Get variable in current scope
                      */
-                    $x = S::property($context, $item->identifier, true);
+                    if(is_numeric($item->identifier)) {
+                        $x = (float) $item->identifier;
+                    } else {
+                        $x = S::property($context, $item->identifier, true);
+                    }
                     $value = $operation($value, $x);
                 }
             } catch(Exception $e) {

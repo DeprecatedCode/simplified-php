@@ -164,7 +164,7 @@ S::$lib->Code->parse = function($context) {
         $sline = $stack->{'#line'};
         $scolumn = $stack->{'#column'};
         throw new Exception("Unclosed block starting with `$stack->token` " .
-            "at line $sline column $scolumn in $context[label]");
+            "at line $sline column $scolumn in " . $context->label);
     }
 
     _code_clean_stack($stack);

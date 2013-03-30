@@ -17,14 +17,14 @@ function _system_inspect($selected) {
     #sphp-debug-switch a:hover {background: #ccc; color: #444;}
     #sphp-debug-switch a.sphp-active {background: #333; color: #fff;}
     </style>";
-    $modes = explode(" ", "request code stack entity output tests close");
+    $modes = explode(" ", "request code stack entity output render tests close");
     $url = $_SERVER['REQUEST_URI'];
     $a = array();
     $re = ';\!\=[a-z0-9]+;';
     foreach($modes as $mode) {
         $c = strpos($url, '!=' . $mode) > -1 ? 'sphp-active' : '';
         $x = '<a href="' .
-            preg_replace($re, '!=' . $mode, $url) . '" class="'.$c.'">';
+            preg_replace($re, $mode == 'close' ? '' : '!=' . $mode, $url) . '" class="'.$c.'">';
         $x .= ucfirst($mode) . '</a>';
         $a[] = $x;
     }

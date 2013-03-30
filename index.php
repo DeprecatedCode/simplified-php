@@ -11,7 +11,7 @@ header.print
  * spanning multiple lines.
  */
 variable: [key: {!"Value"}
-    line14: "Line 14" + " is the best line."
+    line14: "Line 14" + " is the best line." " No operator here."
 ]
 
 test: variable.key

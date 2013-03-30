@@ -7,10 +7,12 @@ S::$lib->Request = clone S::$lib->Entity;
  */
 S::$lib->Request->{S::CONSTRUCTOR} = function($context) {
     if(!isset(S::$lib->Request->__instance__)) {
+        $headers = getallheaders();
         $_GET[S::TYPE] = 'Entity';
         $_COOKIE[S::TYPE] = 'Entity';
         $_FILES[S::TYPE] = 'Entity';
         $_POST[S::TYPE] = 'Entity';
+        $headers[S::TYPE] = 'Entity';
         $location = $_SERVER['REQUEST_URI'];
         $path = explode('?', $location, 2);
         $path = $path[0];
@@ -27,7 +29,7 @@ S::$lib->Request->{S::CONSTRUCTOR} = function($context) {
         $context->data = file_get_contents("php://input");
         $context->files = $_FILES;
         $context->form = $_POST;
-        $context->headers = getallheaders();
+        $context->headers = $headers;
         $context->host = $_SERVER['HTTP_HOST'];
         $context->location = $location;
         $context->method = $_SERVER['REQUEST_METHOD'];

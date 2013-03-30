@@ -26,11 +26,14 @@ if(is_object(S::$lib)) {
         switch($request->args['!']) {
             case 'tests':
                 $test = S::construct('Test');
-                $apply = S::property($test, '__apply_list__');
-                $apply(__DIR__ . '/tests');
-                $html = S::property($test, '__html__');
+                #$apply = S::property($test, '__apply_list__');
+                #$apply(__DIR__ . '/tests');
+                #$html = S::property($test, '__html__');
+                $html = "<i>Testing Coming Soon</i>";
                 $system = S::construct('System');
-                $style = S::property($system, '__style__');
+                $style = S::property($system, '__css__');
+                $style = '<style>' . $style . '</style>';
+                _system_inspect('stack');
                 S::property($style, 'print');
                 S::property($html, 'print');
                 return;
@@ -66,6 +69,10 @@ if(is_object(S::$lib)) {
                 echo "<pre>";
                 echo htmlspecialchars($str);
                 echo "</pre>";
+                return;
+            case 'render':
+                _system_inspect('render');
+                S::property($code, 'run');
                 return;
         }
     }
