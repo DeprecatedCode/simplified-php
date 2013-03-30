@@ -19,22 +19,8 @@ S::$lib->Code->run = function($context) {
     if(!isset($context->stack)) {
         $context->stack = S::property($context, 'parse');
     }
-    $request = S::construct('Request');
+    
     $entity = S::construct('Entity');
-    if(isset($request->args['!'])) {
-        switch($request->args['!']) {
-            case 'stack':
-                S::dump($context);
-                return;
-            case 'request':
-                S::dump($request);
-                return;
-            case 'entity':
-                _code_apply_stack($context->stack, $entity);
-                S::dump($entity);
-                return;
-        }
-    }
     
     /**
      * Actually process the code

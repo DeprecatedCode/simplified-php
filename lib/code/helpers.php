@@ -1,6 +1,22 @@
 <?php
 
 /**
+ * CodeException
+ */
+class CodeException extends Exception {
+    
+    public $item;
+    
+    public function __construct($item, $message) {
+        $this->item = $item;
+        $pos = 'line ' . $item->{'#line'} .
+            ', column ' . $item->{'#column'}; 
+        $message = "$message near $pos";
+        return parent::__construct($message);
+    }
+}
+
+/**
  * Utility Method: Apply Stack
  */
 function _code_apply_stack($stack, &$entity) {
@@ -30,7 +46,7 @@ function _code_apply_stack($stack, &$entity) {
             if(isset($item->break) || 
                 (isset($item->operator) && $item->operator === ',')) {
                 if(count($queue) > 0) {
-                    $entity[] = _code_reduce_value($queue);
+                    $entity[] = _code_reduce_value($queue, $entity);
                     $queue = array();
                 }
             } else {
@@ -66,31 +82,29 @@ function _code_apply_stack($stack, &$entity) {
                         /**
                          * Assign Void to key when no value provided
                          */
-                        $entity->{_code_reduce_key($queue)} = null;
+                        $entity->{_code_reduce_key($queue, $entity)} = null;
                     } else if($state === $_VALUE) {
                         /**
                          * Store the processed value in key
                          */
-                        $entity->{$key} = _code_reduce_value($queue);
+                        $entity->{$key} = _code_reduce_value($queue, $entity);
                     } else {
                         /**
                          * Just process the code and discard the result
                          */
-                        _code_reduce_value($queue);
+                        _code_reduce_value($queue, $entity);
                     }
                     $queue = array();
                     $state = $_NEUTRAL;
                 }
             } else if(isset($item->operator) && $item->operator === ':') {
                 if(count($queue) > 0) {
-                    $key = _code_reduce_key($queue);
+                    $key = _code_reduce_key($queue, $entity);
                     $queue = array();
                     $state = $_VALUE;
                 } else {
-                    $pos = 'line ' . $item->{'#line'} .
-                        ', column ' . $item->{'#column'}; 
-                    throw new Exception("No key provided when parsing Entity " .
-                        "near $pos");
+                    throw new CodeException($item,
+                        "No key provided when parsing Entity");
                 }
             } else {
                 $queue[] = $item;
@@ -110,7 +124,7 @@ function _code_apply_stack($stack, &$entity) {
 /**
  * Utility Method: Code reduce key
  */
-function _code_reduce_key(&$stack) {
+function _code_reduce_key(&$stack, &$context) {
     /**
      * Special case for keys, allowed to be single unquoted
      * identifier. The same would result in an error for values.
@@ -118,14 +132,67 @@ function _code_reduce_key(&$stack) {
     if(count($stack) === 1 && isset($stack[0]->identifier)) {
         return $stack[0]->identifier;
     }
-    return _code_reduce_value($stack);
+    return _code_reduce_value($stack, $context);
 }
 
 /**
  * Utility Method: Code reduce value
  */
-function _code_reduce_value(&$stack) {
-    return print_r($stack, true);
+function _code_reduce_value(&$stack, &$context) {
+    $O = S::$lib->System->operators;
+    $operator = '@';
+    $operation = $noop = $O->{$operator};
+    $value = null;
+    foreach($stack as $item) {
+        if(isset($item->entity)) {
+            $entity = new stdClass;
+            _code_apply_stack($item->entity, $entity);
+            $value = $operation($value, $entity);
+            $operation = $noop;
+        } else if(isset($item->expression)) {
+            $expression = S::construct('Expression');
+            _code_apply_stack($item->expression, $expression);
+            $value = $operation($value, $expression);
+            $operation = $noop;
+        } else if(isset($item->list)) {
+            $list = S::construct('List');
+            _code_apply_stack($item->list, $list);
+            $value = $operation($value, $list);
+            $operation = $noop;
+        } else if(isset($item->operator)) {
+            if(isset($O->{$item->operator})) {
+                $operator = $item->operator;
+                $operation = $O->{$operator};
+            } else {
+                $op = $item->operator;
+                throw new CodeException($item, "Operator $op is not defined");
+            }
+        } else if(isset($item->identifier)) {
+            try {
+                if($operator === '.') {
+                    /**
+                     * Get property of current value
+                     */
+                    $value = S::property($value, $item->identifier);
+                } else {
+                    /**
+                     * Get variable in current scope
+                     */
+                    $x = S::property($context, $item->identifier, true);
+                    $value = $operation($value, $x);
+                }
+            } catch(Exception $e) {
+                throw new CodeException($item, $e->getMessage());
+            }
+            $operation = $noop;
+        } else if(isset($item->string)) {
+            $value = $operation($value, $item->string);
+            $operation = $noop;
+        } else {
+            throw new CodeException("Not implemented feature found");
+        }
+    }
+    return $value;
 }
 
 /**

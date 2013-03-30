@@ -2,6 +2,31 @@
 
 $O = S::$lib->System->operators;
 
+/**
+ * Property Operator
+ */
+$O->{'.'} = function($left, $right) {
+    return S::property($left, $right);
+};
+
+/**
+ * No-op Operator
+ */
+$O->{'@'} = function($left, $right) {
+    if($left === null) {
+        return $right;
+    } else if($right === null) {
+        return null;
+    }
+    
+    $method = "__apply_" . strtolower(S::type($right)) . "__";
+    $method = S::property($left, $method);
+    return $method($right);
+};
+
+/**
+ * Addition Operator
+ */
 $O->{'+'} = function($left, $right) {
     $idl = S::type($left);
     $idr = S::type($right);
@@ -27,6 +52,9 @@ $O->{'+'} = function($left, $right) {
     }
 };
 
+/**
+ * Subtraction Operator
+ */
 $O->{'-'} = function($left, $right) {
     $idl = S::type($left);
     $idr = S::type($right);

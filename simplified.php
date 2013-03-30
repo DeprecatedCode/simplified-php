@@ -17,6 +17,29 @@ if(is_object(S::$lib)) {
      * Code object
      */
     $code = S::construct('Code', $context);
+    
+    /**
+     * Debug params
+     */
+    $request = S::construct('Request');
+    if(isset($request->args['!'])) {
+        switch($request->args['!']) {
+            case 'stack':
+                $context->stack = S::property($code, 'parse');
+                S::dump($context);
+                return;
+            case 'request':
+                S::dump($request);
+                return;
+            case 'entity':
+                $entity = new stdClass;
+                $context->stack = S::property($code, 'parse');
+                _code_apply_stack($context->stack, $entity);
+                S::dump($entity);
+                return;
+        }
+    }
+    
     S::property($code, 'run');
     exit;
 }
@@ -48,6 +71,7 @@ class S {
 
     const CONSTRUCTOR = '#constructor';
     const IMMEDIATE = '#immediate';
+    const COMMENT = '#comment';
     const TYPE = '#type';
 
     public static $entities = array(
@@ -129,7 +153,7 @@ class S {
             return $type === 'Boolean';
         } else if($context instanceof stdClass) {
             if(isset($context->{S::TYPE})) {
-                return $type === S::TYPE;
+                return $type === $context->{S::TYPE};
             }
             return $type === 'Entity';
         }
@@ -138,7 +162,7 @@ class S {
     /**
      * Describe Type
      */
-    public static function type(&$context, $type) {
+    public static function type(&$context) {
         if(is_string($context)) {
             return 'String';
         } else if(is_integer($context) || is_float($context)) {
@@ -151,7 +175,7 @@ class S {
             return 'Boolean';
         } else if($context instanceof stdClass) {
             if(isset($context->{S::TYPE})) {
-                return S::TYPE;
+                return $context->{S::TYPE};
             }
             return 'Entity';
         }
@@ -160,8 +184,9 @@ class S {
 
     /**
      * Get a property of an Entity
+     * seek: Whether to travel up the scope chain.
      */
-    public static function property(&$context, $key) {
+    public static function property(&$context, $key, $seek = false) {
         if($context instanceof stdClass) {
 
             /**
@@ -199,7 +224,20 @@ class S {
                 }
                 return $method($context);
             }
-            throw new Exception("Property '$key' Not Found on $type");
+            if($seek) {
+                /**
+                 * Return Global Entities
+                 */
+                if(isset(S::$lib->$key)) {
+                    return S::construct($key);
+                }
+            }
+            /**
+             * Todo
+             */
+            var_dump($context);
+            throw new Exception("Property '$key' Not Found on $type" . 
+                ($seek ? " or it's scope" : ''));
         }
 
         /**

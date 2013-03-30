@@ -1,7 +1,7 @@
 # SimplifiedPHP Home Page
 # If you see this message in your browser, SimplifiedPHP is not set up properly.
 
-header: File("site/header.php").run.html
+header: File("site/header.php").code.run.html
 
 # Output
 header.print
@@ -11,5 +11,5 @@ header.print
  * spanning multiple lines.
  */
 variable: [key: {!"Value"}
-    line14: "Line 14"
+    line14: "Line 14" + " is the best line."
 ]

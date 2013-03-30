@@ -17,6 +17,13 @@ S::$lib->String->length = function($context) {
 };
 
 /**
+ * String to Code
+ */
+S::$lib->String->code = function($context) {
+    $code = S::construct('Code');
+};
+
+/**
  * String Print
  */
 S::$lib->String->print = function($context) {

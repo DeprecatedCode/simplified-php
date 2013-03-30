@@ -13,7 +13,9 @@ S::$lib->Entity->{S::CONSTRUCTOR} = function($context) {
  * Entity Length
  */
 S::$lib->Entity->length = function($context) {
-    return count($context) - (int) isset($context->{S::TYPE});
+    return count($context) 
+        - (int) isset($context->{S::TYPE})
+        - (int) isset($context->{S::COMMENT});
 };
 
 /**
