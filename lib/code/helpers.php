@@ -67,13 +67,13 @@ function _code_flatten_stack(&$stack) {
             if(!isset($stack[$i]->type)) {
                 $stack[$i]->type = $type;
             }
-            if(is_array($children) && isset($stack[$i]->rawStop)) {
+            if(is_array($children) && isset($stack[$i]->{'#rawStop'})) {
                 $new = new stdClass;
-                $new->raw = $stack[$i]->rawStop;
+                $new->{'#raw'} = $stack[$i]->{'#rawStop'};
                 $new->type = $type;
                 $children[] = $new;
                 array_splice($stack, $i + 1, 0, $children);
-                unset($stack[$i]->rawStop);
+                unset($stack[$i]->{'#rawStop'});
                 continue 2;
             }
         }
@@ -349,8 +349,8 @@ function _code_clean_stack(&$obj) {
             case "'":
             case '"""':
             case "'''":
-                $obj->raw = implode('', $obj->children);
-                $obj->string = stripcslashes($obj->raw);
+                $obj->{'#raw'} = implode('', $obj->children);
+                $obj->string = stripcslashes($obj->{'#raw'});
                 break;
             /**
              * Clean comments
@@ -358,7 +358,7 @@ function _code_clean_stack(&$obj) {
             case '#':
             case '/*':
                 $comment = implode('', $obj->children);
-                $obj->raw = $comment;
+                $obj->{'#raw'} = $comment;
                 if($comment !== '' && $comment[0] == '*') {
                     $comment = substr($comment, 1);
                 }
@@ -382,12 +382,12 @@ function _code_clean_stack(&$obj) {
         /**
          * Remove extra information
          */
-        if(isset($obj->raw)) {
-            $obj->raw = $obj->token . $obj->raw . $obj->stop;
+        if(isset($obj->{'#raw'})) {
+            $obj->{'#raw'} = $obj->token . $obj->{'#raw'} . $obj->stop;
         } else {
-            $obj->raw = $obj->token;
+            $obj->{'#raw'} = $obj->token;
             if(isset($obj->stop)) {
-                $obj->rawStop = $obj->stop;
+                $obj->{'#rawStop'} = $obj->stop;
             }
         }
         unset($obj->token);

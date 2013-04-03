@@ -66,7 +66,7 @@ S::$lib->Code->__html__ = function($context) {
     $html .= '<pre>';
     foreach($stack as $item) {
         $html .= '<span class="sphp-' . $item->type . '">' . 
-            htmlspecialchars($item->raw) . '</span>';
+            htmlspecialchars($item->{'#raw'}) . '</span>';
     }
     $html .= '</pre>';
     

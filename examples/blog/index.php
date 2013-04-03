@@ -22,7 +22,7 @@ ext: '.txt'
 
 ? Request.args.slug = {
   Void: {
-    Directory(dir).each{
+    Directory(dir).each {
       '<a href="?slug=' Path(it).name '">' File(it).string.lines[0] '</a><br/>'.print
     }
   }

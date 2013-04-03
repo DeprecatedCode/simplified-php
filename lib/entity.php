@@ -65,7 +65,7 @@ S::$lib->Entity->__html__ = function($context) {
         $show = true;
         if(is_array($value)) {
             $depth += 1;
-            if($depth > 10) {
+            if($depth > 15) {
                 $show = false;
                 $html .= '<i>too deep</i>';
             } else {
