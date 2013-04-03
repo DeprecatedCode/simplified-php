@@ -108,5 +108,23 @@ table.simplified-php-html span.boolean {
 table.simplified-php-html span.info {
     color: gray;
 }
+span.sphp-list {
+    color: #115;
+}
+span.sphp-entity {
+    color: #228;
+}
+span.sphp-expression {
+    color: #33b;
+}
+span.sphp-comment {
+    color: orange;
+}
+span.sphp-string {
+    color: darkgreen;
+}
+span.sphp-operator {
+    color: darkred;
+}
 EOF;
 };

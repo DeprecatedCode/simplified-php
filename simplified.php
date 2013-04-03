@@ -40,13 +40,16 @@ if(is_object(S::$lib)) {
             case 'stack':
                 _system_inspect('stack');
                 $context->stack = S::property($code, 'parse');
-                S::dump($context);
+                S::dump($context->stack);
                 return;
             case 'code':
                 _system_inspect('code');
-                echo "<pre>";
-                echo htmlspecialchars($code->code);
-                echo "</pre>";
+                $system = S::construct('System');
+                $style = S::property($system, '__css__');
+                $style = '<style>' . $style . '</style>';
+                $html = S::property($code, '__html__');
+                S::property($style, 'print');
+                S::property($html, 'print');
                 return;
             case 'request':
                 _system_inspect('request');

@@ -21,6 +21,69 @@ class CodeException extends Exception {
 }
 
 /**
+ * Flatten Stack
+ */
+function _code_flatten_stack(&$stack) {
+    $new = array();
+    while(true) {
+        
+        $len = count($stack);
+        for($i = 0; $i < $len; $i++) {
+            if(isset($stack[$i]->list)) {
+                $children = $stack[$i]->list;
+                unset($stack[$i]->list);
+                $type = 'list';
+            } else if(isset($stack[$i]->entity)) {
+                $children = $stack[$i]->entity;
+                unset($stack[$i]->entity);
+                $type = 'entity';
+            } else if(isset($stack[$i]->expression)) {
+                $children = $stack[$i]->expression;
+                unset($stack[$i]->expression);
+                $type = 'expression';
+            } else {
+                $type = 'other';
+                if(isset($stack[$i]->comment)) {
+                    $type = 'comment';
+                    unset($stack[$i]->comment);
+                } else if(isset($stack[$i]->string)) {
+                    $type = 'string';
+                    unset($stack[$i]->string);
+                } else if(isset($stack[$i]->operator)) {
+                    $type = 'operator';
+                    unset($stack[$i]->operator);
+                } else if(isset($stack[$i]->identifier)) {
+                    $type = 'identifier';
+                    unset($stack[$i]->identifier);
+                } else if(isset($stack[$i]->break)) {
+                    $type = 'break';
+                    unset($stack[$i]->break);
+                } else if(isset($stack[$i]->space)) {
+                    $type = 'space';
+                    unset($stack[$i]->space);
+                }
+                $children = false;
+            }
+            if(!isset($stack[$i]->type)) {
+                $stack[$i]->type = $type;
+            }
+            if(is_array($children) && isset($stack[$i]->rawStop)) {
+                $new = new stdClass;
+                $new->raw = $stack[$i]->rawStop;
+                $new->type = $type;
+                $children[] = $new;
+                array_splice($stack, $i + 1, 0, $children);
+                unset($stack[$i]->rawStop);
+                continue 2;
+            }
+        }
+        
+        // No more children present
+        break;
+    }
+}
+
+/**
  * Utility Method: Apply Stack
  */
 function _code_apply_stack($stack, &$entity) {
@@ -220,7 +283,7 @@ function _code_parse_expression($expr, &$stack, $line, $column) {
         '[a-zA-Z0-9_]+'     => 'identifier',
         '[^\sa-zA-Z0-9_]+'  => 'operator',
         '\n+'               => 'break',
-        '\s+'               => null
+        '\s+'               => 'space'
     );
     while(strlen($expr) > 0) {
         foreach($regex as $re => $type) {
@@ -238,6 +301,7 @@ function _code_parse_expression($expr, &$stack, $line, $column) {
                     $obj->{'#line'} = $line;
                     $obj->{'#column'} = $column;
                     $obj->$type = $type == 'break' ? true : $current;
+                    $obj->token = $current;
                     $stack->children[] = $obj;
                 }
                 
@@ -264,8 +328,6 @@ function _code_parse_expression($expr, &$stack, $line, $column) {
  */
 function _code_clean_stack(&$obj) {
     unset($obj->super);
-    unset($obj->stop);
-    unset($obj->nest);
     
     if(isset($obj->children)) {
         foreach($obj->children as $child) {
@@ -287,7 +349,8 @@ function _code_clean_stack(&$obj) {
             case "'":
             case '"""':
             case "'''":
-                $obj->string = stripcslashes(implode('', $obj->children));
+                $obj->raw = implode('', $obj->children);
+                $obj->string = stripcslashes($obj->raw);
                 break;
             /**
              * Clean comments
@@ -295,6 +358,7 @@ function _code_clean_stack(&$obj) {
             case '#':
             case '/*':
                 $comment = implode('', $obj->children);
+                $obj->raw = $comment;
                 if($comment !== '' && $comment[0] == '*') {
                     $comment = substr($comment, 1);
                 }
@@ -318,7 +382,18 @@ function _code_clean_stack(&$obj) {
         /**
          * Remove extra information
          */
+        if(isset($obj->raw)) {
+            $obj->raw = $obj->token . $obj->raw . $obj->stop;
+        } else {
+            $obj->raw = $obj->token;
+            if(isset($obj->stop)) {
+                $obj->rawStop = $obj->stop;
+            }
+        }
         unset($obj->token);
         unset($obj->children);
     }
+    
+    unset($obj->stop);
+    unset($obj->nest);
 }

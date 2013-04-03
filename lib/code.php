@@ -54,9 +54,30 @@ S::$lib->Code->nest = array(
 );
 
 /**
+ * Code HTML Output
+ */
+S::$lib->Code->__html__ = function($context) {
+    $html = '<table class="simplified-php-html">';
+    $parse = S::$lib->Code->parse;
+    $stack = $parse($context, false);
+    _code_flatten_stack($stack);
+    
+    //S::dump($stack);
+    $html .= '<pre>';
+    foreach($stack as $item) {
+        $html .= '<span class="sphp-' . $item->type . '">' . 
+            htmlspecialchars($item->raw) . '</span>';
+    }
+    $html .= '</pre>';
+    
+    
+    return $html . '</table>';
+};
+
+/**
  * Code Parse
  */
-S::$lib->Code->parse = function($context) {
+S::$lib->Code->parse = function($context, $clean=true) {
     $syntax = S::property($context, 'syntax');
     $nest = S::property($context, 'nest');
 
@@ -71,7 +92,7 @@ S::$lib->Code->parse = function($context) {
     $stack->super    = null;
     $stack->{'#line'}     = $line;
     $stack->{'#column'}   = $column;
-
+ 
     $length = strlen($context->code);
     $queue = '';
 
@@ -104,7 +125,7 @@ S::$lib->Code->parse = function($context) {
                     $queue = '';
                 }
                 if($stack->super === null) {
-                    _code_clean_stack($stack);
+                    _code_clean_stack($stack, $clean);
                     return $stack;
                 }
                 $stack = $stack->super;
@@ -167,6 +188,6 @@ S::$lib->Code->parse = function($context) {
             "at line $sline column $scolumn in " . $context->label);
     }
 
-    _code_clean_stack($stack);
+    _code_clean_stack($stack, $clean);
     return $stack->children;
 };
