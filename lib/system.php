@@ -109,22 +109,25 @@ table.simplified-php-html span.info {
     color: gray;
 }
 span.sphp-list {
-    color: #115;
+    color: #444;
 }
 span.sphp-entity {
-    color: #228;
+    color: #444;
 }
 span.sphp-expression {
-    color: #33b;
+    color: #444;
 }
 span.sphp-comment {
     color: orange;
 }
 span.sphp-string {
-    color: darkgreen;
+    color: #593;
 }
 span.sphp-operator {
-    color: darkred;
+    color: #953;
+}
+span.sphp-identifier {
+    color: #579;
 }
 EOF;
 };
