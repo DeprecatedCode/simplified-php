@@ -2,25 +2,15 @@
 
 require_once(__DIR__ . '/code/helpers.php');
 
-S::$lib->Code = clone S::$lib->Entity;
-
-/**
- * Code Constructor
- */
-S::$lib->Code->{S::CONSTRUCTOR} = function($context) {
-    $context->{S::TYPE} = S::$lib->Code->{S::TYPE};
-    return $context;
-};
-
 /**
  * Code Run
  */
-S::$lib->Code->run = function($context) {
+proto(CodeType)->run = function($context) {
     if(!isset($context->stack)) {
-        $context->stack = S::property($context, 'parse');
+        $context->stack = property($context, 'parse');
     }
     
-    $entity = S::construct('Entity');
+    $entity = construct(EntityType);
     
     /**
      * Actually process the code
@@ -32,7 +22,7 @@ S::$lib->Code->run = function($context) {
 /**
  * Code Syntax
  */
-S::$lib->Code->syntax = array(
+proto(CodeType)->syntax = array(
       '(' => ')'   ,
       '[' => ']'   ,
       '{' => '}'   ,
@@ -47,7 +37,7 @@ S::$lib->Code->syntax = array(
 /**
  * Syntax Nesting
  */
-S::$lib->Code->nest = array(
+proto(CodeType)->nest = array(
     '(' => 1,
     '[' => 1,
     '{' => 1
@@ -56,19 +46,26 @@ S::$lib->Code->nest = array(
 /**
  * Code HTML Output
  */
-S::$lib->Code->__html__ = function($context) {
-    $html = '<table class="simplified-php-html">';
-    $parse = S::$lib->Code->parse;
-    $stack = $parse($context, false);
-    _code_flatten_stack($stack);
+proto(CodeType)->__html__ = function($context) {
     
-    //S::dump($stack);
-    $html .= '<pre>';
+    $parse = proto(CodeType)->parse;
+    $stack = $parse($context, false);
+    $lines = _code_flatten_stack($stack);
+    
+    $html = '<h4 class="sphp-info">Source of ' . $context->label . '</h4>';
+    
+    
+    $html .= '<table class="simplified-php-html">';
+    
+    $html .= '<tr><td width="0"><pre class="sphp-lines">' . 
+        implode("\n", range(1, $lines)) . '</pre></td>';
+
+    $html .= '<td><pre>';
     foreach($stack as $item) {
         $html .= '<span class="sphp-' . $item->type . '">' . 
             htmlspecialchars($item->{'#raw'}) . '</span>';
     }
-    $html .= '</pre>';
+    $html .= '</pre></td></tr>';
     
     
     return $html . '</table>';
@@ -77,9 +74,9 @@ S::$lib->Code->__html__ = function($context) {
 /**
  * Code Parse
  */
-S::$lib->Code->parse = function($context, $clean=true) {
-    $syntax = S::property($context, 'syntax');
-    $nest = S::property($context, 'nest');
+proto(CodeType)->parse = function($context) {
+    $syntax = property($context, 'syntax');
+    $nest = property($context, 'nest');
 
     $line = 1;
     $column = 0;
@@ -125,7 +122,7 @@ S::$lib->Code->parse = function($context, $clean=true) {
                     $queue = '';
                 }
                 if($stack->super === null) {
-                    _code_clean_stack($stack, $clean);
+                    _code_clean_stack($stack);
                     return $stack;
                 }
                 $stack = $stack->super;
@@ -188,6 +185,6 @@ S::$lib->Code->parse = function($context, $clean=true) {
             "at line $sline column $scolumn in " . $context->label);
     }
 
-    _code_clean_stack($stack, $clean);
+    _code_clean_stack($stack);
     return $stack->children;
 };

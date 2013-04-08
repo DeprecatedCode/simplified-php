@@ -1,12 +1,12 @@
 <?php
 
-$O = S::$lib->System->operators;
+$O = proto(SystemType)->operators;
 
 /**
  * Property Operator
  */
 $O->{'.'} = function($left, $right) {
-    return S::property($left, $right);
+    return property($left, $right);
 };
 
 /**
@@ -19,8 +19,8 @@ $O->{'@'} = function($left, $right) {
         return null;
     }
     
-    $method = "__apply_" . strtolower(S::type($right)) . "__";
-    $method = S::property($left, $method);
+    $method = "__apply_" . strtolower(type($right)) . "__";
+    $method = property($left, $method);
     return $method($right);
 };
 
@@ -28,8 +28,8 @@ $O->{'@'} = function($left, $right) {
  * Addition Operator
  */
 $O->{'+'} = function($left, $right) {
-    $idl = S::type($left);
-    $idr = S::type($right);
+    $idl = type($left);
+    $idr = type($right);
     if($idl !== $idr) {
         throw new Exception("Cannot add $idl + $idr");
     }
@@ -56,8 +56,8 @@ $O->{'+'} = function($left, $right) {
  * Subtraction Operator
  */
 $O->{'-'} = function($left, $right) {
-    $idl = S::type($left);
-    $idr = S::type($right);
+    $idl = type($left);
+    $idr = type($right);
     if($idl !== $idr) {
         throw new Exception("Cannot subtract $idl - $idr");
     }

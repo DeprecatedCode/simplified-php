@@ -1,46 +1,30 @@
 <?php
 
-S::$lib->Entity = new stdClass;
-
-/**
- * Entity Constructor
- */
-S::$lib->Entity->{S::CONSTRUCTOR} = function($context) {
-    return $context;
-};
-
 /**
  * Entity Length
  */
-S::$lib->Entity->length = function($context) {
+proto(EntityType)->length = function($context) {
     return count($context) 
-        - (int) isset($context->{S::TYPE})
-        - (int) isset($context->{S::COMMENT});
+        - (int) isset($context->{Proto})
+        - (int) isset($context->{Comment})
+        - (int) isset($context->{Type});
 };
 
 /**
  * Entity String
  */
-S::$lib->Entity->__string__ = function($context) {
-    return $context->{S::TYPE};
+proto(EntityType)->__string__ = function($context) {
+    return property($context, Type);
 };
 
 /**
  * Entity HTML
  */
-S::$lib->Entity->__html__ = function($context) {
+proto(EntityType)->__html__ = function($context) {
     static $depth = 0;
     $html = '';
     $html .= '<table class="simplified-php-html">';
-    if(is_array($context)) {
-        if(isset($context[S::TYPE])) {
-            $type = $context[S::TYPE];
-        } else {
-            $type = 'List';
-        }
-    } else {
-        $type = isset($context->{S::TYPE}) ? $context->{S::TYPE} : 'Entity';
-    }
+    $type = property($context, Type);
     if(isset($context->{'#line'})) {
         $type .= " &bull; " . $context->{'#line'};
         if(isset($context->{'#column'})) {
@@ -73,7 +57,7 @@ S::$lib->Entity->__html__ = function($context) {
             }
         }
         if($show) {
-            $html .= S::property($value, '__html__');
+            $html .= property($value, '__html__');
         }
         $html .= '</td></tr>';
     }

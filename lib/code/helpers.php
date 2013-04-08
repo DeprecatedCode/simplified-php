@@ -26,9 +26,11 @@ class CodeException extends Exception {
 function _code_flatten_stack(&$stack) {
     $new = array();
     while(true) {
-        
+        $lines = 0;
         $len = count($stack);
         for($i = 0; $i < $len; $i++) {
+            $lines += substr_count($stack[$i]->{'#raw'}, "\n");
+            
             if(isset($stack[$i]->list)) {
                 $children = $stack[$i]->list;
                 unset($stack[$i]->list);
@@ -81,6 +83,8 @@ function _code_flatten_stack(&$stack) {
         // No more children present
         break;
     }
+    
+    return $lines + 1;
 }
 
 /**
@@ -91,11 +95,12 @@ function _code_apply_stack($stack, &$entity) {
     /**
      * Evaluate Expressions
      */
-    if(S::is($entity, 'Expression')) {
+    $type = type($entity);
+    if($type === ExpressionType) {
         if(isset($stack[0]) && isset($stack[0]->operator)
             && $stack[0]->operator == '!') {
             array_shift($stack);
-            $entity->{S::IMMEDIATE} = true;
+            $entity->{Immediate} = true;
         }
         $entity->stack = $stack;
     }
@@ -103,7 +108,7 @@ function _code_apply_stack($stack, &$entity) {
     /**
      * Evaluate Lists
      */
-    else if(S::is($entity, 'List')) {
+    else if($type === ListType) {
         $end = new stdClass;
         $end->break = true;
         $stack[] = $end;
@@ -130,7 +135,7 @@ function _code_apply_stack($stack, &$entity) {
     /**
      * Evaluate Entities
      */
-    else if(S::is($entity, 'Entity')) {
+    else if($type === EntityType) {
         static $_NEUTRAL = 0;
         static $_KEY = 1;
         static $_VALUE = 3;
@@ -145,6 +150,8 @@ function _code_apply_stack($stack, &$entity) {
                 if(!isset($entity->{'#comment'})) {
                     $entity->{'#comment'} = $item->comment;
                 }
+                continue;
+            } else if(isset($item->space)) {
                 continue;
             }
             if(isset($item->break) || 
@@ -188,8 +195,7 @@ function _code_apply_stack($stack, &$entity) {
      * Cannot process
      */
     else {
-        throw new Exception("Cannot run code in context of " .
-            S::type($entity));
+        throw new Exception("Cannot run code in context of " . $type);
     }
 }
 
@@ -211,23 +217,25 @@ function _code_reduce_key(&$stack, &$context) {
  * Utility Method: Code reduce value
  */
 function _code_reduce_value(&$stack, &$context) {
-    $O = S::$lib->System->operators;
+    $O = proto(SystemType)->operators;
     $operator = '@';
     $operation = $noop = $O->{$operator};
     $value = null;
     foreach($stack as $item) {
-        if(isset($item->entity)) {
+        if(isset($item->space)) {
+            continue;
+        } else if(isset($item->entity)) {
             $entity = new stdClass;
             _code_apply_stack($item->entity, $entity);
             $value = $operation($value, $entity);
             $operation = $noop;
         } else if(isset($item->expression)) {
-            $expression = S::construct('Expression');
+            $expression = construct(ExpressionType);
             _code_apply_stack($item->expression, $expression);
             $value = $operation($value, $expression);
             $operation = $noop;
         } else if(isset($item->list)) {
-            $list = S::construct('List');
+            $list = construct(ListType);
             _code_apply_stack($item->list, $list);
             $value = $operation($value, $list);
             $operation = $noop;
@@ -245,7 +253,7 @@ function _code_reduce_value(&$stack, &$context) {
                     /**
                      * Get property of current value
                      */
-                    $value = S::property($value, $item->identifier);
+                    $value = property($value, $item->identifier);
                 } else {
                     /**
                      * Get variable in current scope
@@ -253,7 +261,7 @@ function _code_reduce_value(&$stack, &$context) {
                     if(is_numeric($item->identifier)) {
                         $x = (float) $item->identifier;
                     } else {
-                        $x = S::property($context, $item->identifier, true);
+                        $x = property($context, $item->identifier, true);
                     }
                     $value = $operation($value, $x);
                 }

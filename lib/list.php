@@ -1,21 +1,19 @@
 <?php
 
-S::$lib->List = new stdClass;
-
 /**
  * List Constructor
  */
-S::$lib->List->{S::CONSTRUCTOR} = function($context) {
+proto(ListType)->{Constructor} = function() {
     return array();
 };
 
 /**
  * List Print
  */
-S::$lib->List->__string__ = function(&$context) {
+proto(ListType)->__string__ = function(&$context) {
     $out = array();
     foreach($context as $item) {
-        $out[] = S::property($item, '__string__');
+        $out[] = property($item, '__string__');
     }
     $out = implode(", ", $out);
     return "($out)";
@@ -24,13 +22,11 @@ S::$lib->List->__string__ = function(&$context) {
 /**
  * List Length
  */
-S::$lib->List->length = function(&$context) {
-    return count($context) 
-        - (int) isset($context[S::TYPE])
-        - (int) isset($context[S::COMMENT]);
+proto(ListType)->length = function(&$context) {
+    return count($context);
 };
 
 /**
  * List HTML
  */
-S::$lib->List->__html__ = S::$lib->Entity->__html__;
+proto(ListType)->__html__ = proto(EntityType)->__html__;

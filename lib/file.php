@@ -1,44 +1,43 @@
 <?php
 
-S::$lib->File = clone S::$lib->Entity;
-
-/**
- * File Constructor
- */
-S::$lib->File->{S::CONSTRUCTOR} = function($context) {
-    $context->{S::TYPE} = S::$lib->File->{S::TYPE};
-    return $context;
-};
-
 /**
  * File List
  */
-S::$lib->File->__apply_list__ = function($context) {
+proto(FileType)->__apply_list__ = function($context) {
     return function($list) use($context) {
-        if(S::property($list, 'length') !== 1) {
-            throw new Exception("Only one file can be opened at a time");
+        $out = array();
+        foreach($list as $path) {
+            if($path !== '' && $path[0] !== '/') {
+                $path = getcwd() . "/$path";
+            }
+            $file = construct(FileType);
+            $file->path = $path;
+            $out[] = $file;
         }
-        $file = $list[0];
-        if($file !== '' && $file[0] !== '/') {
-            $file = getcwd() . "/$file";
-        }
-        $x = new stdClass;
-        $x->string = file_get_contents($file);
-        $x->path = $file;
-        return S::construct('File', $x);
+        return $out[0];
     };
+};
+
+/**
+ * String
+ */
+proto(FileType)->string = function($context) {
+    if(!isset($context->path)) {
+        throw new Exception("No file selected");
+    }
+    $context->string = file_get_contents($context->path);
+    return $context->string;
 };
 
 /**
  * As code
  */
-S::$lib->File->code = function($context) {
-    if(!isset($context->string)) {
-        throw new Exception("No file opened");
+proto(FileType)->code = function($context) {
+    if(!isset($context->path)) {
+        throw new Exception("No file selected");
     }
-    
-    $x = new stdClass;
-    $x->code = $context->string;
-    $x->label = $context->path;
-    return S::construct('Code', $x);
+    $code = construct(CodeType);
+    $code->code = property($context, 'string');
+    $code->label = $context->path;
+    return $code;
 };
