@@ -96,7 +96,7 @@ function proto($type) {
             Engine::$proto->$type->__html__ = function($context) use($type) {
                 $t = strtolower($type);
                 $str = htmlspecialchars(property($context, '__string__'));
-                return "<span class=\"$t\">$str</span>";
+                return "<span class=\"sphp-$t\">$str</span>";
             };
         }
         
@@ -114,7 +114,7 @@ function proto($type) {
          */
         if(!isset(Engine::$proto->$type->__string__)) {
             Engine::$proto->$type->__string__ = function($context) use($type) {
-                echo $type;
+                return $type;
             };
         }
     }
@@ -203,20 +203,16 @@ function property(&$context, $key, $seek = false, &$original = null) {
                 $value = $method;
             }
 
-            if(!is_callable($value)) {
+            # Checking is_callable here results in a bug since the string
+            # "Entity" is considered callable, as function entity() exists.
+            if(!($value instanceof Closure)) {
                 return $value;
             }
+            
             if(!is_null($original)) {
                 return $value($original);
             }
             return $value($context);
-        }
-        
-        /**
-         * Handle Entity Types
-         */
-        if($key === Type) {
-            return EntityType;
         }
 
         /**
@@ -230,6 +226,13 @@ function property(&$context, $key, $seek = false, &$original = null) {
         if(!isset($context->{Type})) {
             $proto = proto(EntityType);
             return property($proto, $key, $seek, $context);
+        }
+        
+        /**
+         * Handle Entity Types
+         */
+        if($key === Type) {
+            return EntityType;
         }
         
         /**

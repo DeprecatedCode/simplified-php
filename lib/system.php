@@ -76,21 +76,6 @@ table.simplified-php-html td.key {
     text-align: right;
     border-right: 1px solid #ccc;
 }
-table.simplified-php-html span.string {
-    color: darkgreen;
-}
-table.simplified-php-html span.key.string {
-    color: red;
-}
-table.simplified-php-html span.number {
-    color: darkorange;
-}
-table.simplified-php-html span.boolean {
-    color: darkblue;
-}
-table.simplified-php-html span.info {
-    color: gray;
-}
 span.sphp-list {
     color: #333;
 }

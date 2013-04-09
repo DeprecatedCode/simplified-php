@@ -38,7 +38,7 @@ proto(EntityType)->__html__ = function($context) {
             continue;
         }
         $ran = true;
-        $str = is_string($key) ? 'string' : 'number';
+        $str = is_string($key) ? 'sphp-identifier' : 'sphp-identifier';
         if(is_string($key) && !preg_match(';^[a-zA-Z0-9_]+$;', $key)) {
             $q = "&quot;";
         } else {
@@ -62,7 +62,7 @@ proto(EntityType)->__html__ = function($context) {
         $html .= '</td></tr>';
     }
     if(!$ran) {
-        $html .= '<tr><td colspan="2"><span class="info">No Items</span></td></tr>';
+        $html .= '<tr><td colspan="2"><span class="sphp-comment">No Items</span></td></tr>';
     }
     $html .= '</table>';
     return $html;

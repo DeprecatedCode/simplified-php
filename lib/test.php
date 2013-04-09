@@ -1,19 +1,9 @@
 <?php
 
-S::$lib->Test = clone S::$lib->Entity;
-
-/**
- * Test Constructor
- */
-S::$lib->Test->{S::CONSTRUCTOR} = function($context) {
-    $context->{S::TYPE} = S::$lib->Test->{S::TYPE};
-    return $context;
-};
-
 /**
  * Test + List
  */
-S::$lib->Test->__apply_list__ = function($context) {
+proto(TestType)->__apply_list__ = function($context) {
     return function($list) use($context) {
         $tests = array();
         foreach($list as $file) {

@@ -96,6 +96,7 @@ function _code_apply_stack($stack, &$entity) {
      * Evaluate Expressions
      */
     $type = type($entity);
+
     if($type === ExpressionType) {
         if(isset($stack[0]) && isset($stack[0]->operator)
             && $stack[0]->operator == '!') {

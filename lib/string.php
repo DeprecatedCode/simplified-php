@@ -62,5 +62,5 @@ proto(StringType)->__string__ = function($context) {
  * String HTML
  */
 proto(StringType)->__html__ = function($context) {
-    return '<span class="string">&quot;' . htmlspecialchars($context) . '&quot;</span>';
+    return '<span class="sphp-string">&quot;' . htmlspecialchars($context) . '&quot;</span>';
 };
