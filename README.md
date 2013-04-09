@@ -84,7 +84,7 @@ Every entity has an `each` property, to which an expression may be applied that 
 
 ### Example:
 
-    count = " ".join([1..10].each{it + 3})
+    count: " ".join([1..10].each{it + 3})
 
     count == "4 5 6 7 8 9 10 11 12 13"
     
@@ -92,7 +92,7 @@ Every entity has an `each` property, to which an expression may be applied that 
     
     names == [0: "Bib", 1: "Jam"]
     
-    fruits = ["Apple", "Pear", "Orange", "Carrot", "Potato", "Nectarine"].get[0..2, 5].each{it.get[0..2]}
+    fruits: ["Apple", "Pear", "Orange", "Carrot", "Potato", "Nectarine"].get[0..2, 5].each{it.get[0..2]}
     
     fruits == [0: "App", 1: "Pea", 2: "Ora", 3: "Nec"] 
     
@@ -102,7 +102,7 @@ To perform matching, specify the variable you want to match on and follow with a
 
 ### Example:
 
-    temp = [20, 32, 45, 60, 72].each{
+    temp: [20, 32, 45, 60, 72].each{
         it ?
            <= 32: "Freezing"
             < 60: "Cold"
