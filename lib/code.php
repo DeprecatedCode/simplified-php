@@ -6,17 +6,21 @@ require_once(__DIR__ . '/code/helpers.php');
  * Code Run
  */
 proto(CodeType)->run = function($context) {
-    if(!isset($context->stack)) {
-        $context->stack = property($context, 'parse');
+    try {
+        if(!isset($context->stack)) {
+            $context->stack = property($context, 'parse');
+        }
+        
+        $entity = construct(EntityType);
+        
+        /**
+         * Actually process the code
+         */
+        _code_apply_stack($context->stack, $entity);
+        return $entity;
+    } catch(Exception $e) {
+        throw new Exception($e->getMessage() . " of " . $context->label);
     }
-    
-    $entity = construct(EntityType);
-    
-    /**
-     * Actually process the code
-     */
-    _code_apply_stack($context->stack, $entity);
-    return $entity;
 };
 
 /**
