@@ -3,18 +3,18 @@
 /**
  * File List
  */
-proto(FileType)->__apply_list__ = function($context) {
-    return function($list) use($context) {
-        $out = array();
-        foreach($list as $path) {
-            if($path !== '' && $path[0] !== '/') {
-                $path = getcwd() . "/$path";
-            }
-            $file = construct(FileType);
-            $file->path = $path;
-            $out[] = $file;
+proto(FileType)->__apply__ = function($context) {
+    return function($item) use($context) {
+        if(!is_string($item)) {
+            throw new Exception("File argument must be a string");
         }
-        return $out[0];
+        $out = array();
+        if($item !== '' && $item[0] !== '/') {
+            $item = getcwd() . "/$item";
+        }
+        $file = construct(FileType);
+        $file->path = $item;
+        return $file;
     };
 };
 

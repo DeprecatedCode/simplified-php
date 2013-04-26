@@ -19,8 +19,16 @@ $O->{'@'} = function($left, $right) {
         return null;
     }
     
-    $method = "__apply_" . strtolower(type($right)) . "__";
-    $method = property($left, $method);
+    $method = property($left, '__apply__');
+    
+    # Expand when reaching a list
+    if(is_array($right)) {
+        $out = array();
+        foreach($right as $item) {
+            $out[] = $method($item);
+        }
+        return $out;
+    }
     return $method($right);
 };
 

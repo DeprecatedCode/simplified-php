@@ -8,15 +8,26 @@ proto(ListType)->{Constructor} = function() {
 };
 
 /**
- * List Print
+ * List Apply
+ */
+proto(ListType)->__apply__ = function(&$context) {
+    return function(&$item) use($context) {
+        if(!is_string($item)) {
+            throw new Exception("Only strings can be applied to lists");
+        }
+        return implode($item, $context);
+    };
+};
+
+/**
+ * List String
  */
 proto(ListType)->__string__ = function(&$context) {
     $out = array();
     foreach($context as $item) {
         $out[] = property($item, '__string__');
     }
-    $out = implode(", ", $out);
-    return "($out)";
+    return implode("", $out);
 };
 
 /**

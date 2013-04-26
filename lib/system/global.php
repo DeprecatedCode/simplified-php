@@ -246,6 +246,17 @@ function property(&$context, $key, $seek = false, &$original = null) {
                 return construct($key);
             }
         }
+        
+        /**
+         * Iterate lists
+         */
+        if(is_array($original)) {
+            $out = array();
+            foreach($original as $item) {
+                $out[] = property($item, $key);
+            }
+            return $out;
+        }
 
         /**
          * Todo - clean up error messaging

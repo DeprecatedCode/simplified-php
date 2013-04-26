@@ -17,7 +17,7 @@ proto(StringType)->length = function($context) {
 /**
  * String Apply
  */
-proto(StringType)->__apply_string__ = function(&$context) {
+proto(StringType)->__apply__ = function(&$context) {
     return function(&$string) use($context) {
         return $context . $string;
     };
