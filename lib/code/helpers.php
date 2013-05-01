@@ -146,7 +146,18 @@ function _code_apply_stack($stack, &$entity) {
         $stack[] = $end;
         $queue = array();
         $key = null;
+        $escape = false;
         foreach($stack as $item) {
+            
+            if($escape === true) {
+                $escape = false;
+                continue;
+                
+                /**
+                 * TODO: Handle \literal etc here
+                 */
+            }
+            
             if(isset($item->comment)) {
                 if(!isset($entity->{'#comment'})) {
                     $entity->{'#comment'} = $item->comment;
@@ -177,6 +188,9 @@ function _code_apply_stack($stack, &$entity) {
                     $queue = array();
                     $state = $_NEUTRAL;
                 }
+            } else if(isset($item->operator) && $item->operator === '\\') {
+                $escape = true;
+                continue;
             } else if(isset($item->operator) && $item->operator === ':') {
                 if(count($queue) > 0) {
                     $key = _code_reduce_key($queue, $entity);

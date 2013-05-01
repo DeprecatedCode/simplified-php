@@ -3,11 +3,15 @@
 /**
  * Entity Length
  */
-proto(EntityType)->length = function($context) {
-    return count($context) 
-        - (int) isset($context->{Proto})
-        - (int) isset($context->{Comment})
-        - (int) isset($context->{Type});
+proto(EntityType)->length = function(&$context) {
+    $len = 0;
+    foreach($context as $key => $value) {
+        if(strlen($key) && $key[0] == '#') {
+            continue;
+        }
+        $len++;
+    }
+    return $len;
 };
 
 /**
