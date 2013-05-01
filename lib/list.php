@@ -20,6 +20,15 @@ proto(ListType)->__apply__ = function(&$context) {
 };
 
 /**
+ * List Join
+ */
+proto(ListType)->join = function(&$context) {
+    return function(&$glue) use($context) {
+        return implode($glue, $context);
+    };
+};
+
+/**
  * List String
  */
 proto(ListType)->__string__ = function(&$context) {

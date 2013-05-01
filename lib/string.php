@@ -15,21 +15,41 @@ proto(StringType)->length = function($context) {
 };
 
 /**
+ * String Uppercase
+ */
+proto(StringType)->upper = function($context) {
+    return strtoupper($context);
+};
+
+/**
+ * String Lowercase
+ */
+proto(StringType)->lower = function($context) {
+    return strtolower($context);
+};
+
+/**
  * String Apply
  */
 proto(StringType)->__apply__ = function(&$context) {
     return function(&$arg) use($context) {
-        
+
         /**
-         * Iterate over String Characters
+         * If arg is expression, get callable
          */
         if(is_object($arg) && type($arg) === ExpressionType) {
-            $run = property($arg, 'run');
+            $arg = property($arg, 'run');   
+        }
+
+        /**
+         * Iterate over String Characters
+         */        
+        if(is_callable($arg)) {
             $out = array();
             foreach(str_split($context) as $char) {
                 $entity = new stdClass;
                 $entity->it = $char;
-                $out[] = $run($entity);
+                $out[] = $arg($entity);
             }
             return $out;
         }

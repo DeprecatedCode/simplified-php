@@ -4,17 +4,21 @@ list: (1, 2, 3)
 
 entity: [a: 1, b: 2, c: 3]
 
-expr: {a + b}
+expr1: {a + b}
+
+expr2: {it.upper}
 
 # str
 
-s_s: str str        # hellohello
+s_s: str str                # hellohello
 
-s_l: str list            # hello1hello2hello3
+s_l: str list               # hello1hello2hello3
 
-s_e: str "#{b}" entity   # hello2
+s_e: str "#{b}" entity      # hello2
 
-s_x: str expr            # Void
+s_x2: str expr2             # HELLO
+
+s_x2_join: s_x2.join "-"    # H-E-L-L-O
 
 /*
 # list

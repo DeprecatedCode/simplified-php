@@ -4,10 +4,12 @@
  * Run expression
  */
 proto(ExpressionType)->run = function($context) {
+    if(isset($context->{Immediate}) && $context->{Immediate}) {
+        $entity = new stdClass;
+        return _code_reduce_value($context->stack, $entity);
+    }
     return function($entity) use($context) {
-        if(isset($context->{Immediate}) && $context->{Immediate}) {
-            return _code_reduce_value($context->stack, $entity);
-        }
+        return _code_reduce_value($context->stack, $entity);
     };
 };
 

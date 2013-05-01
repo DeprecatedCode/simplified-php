@@ -174,6 +174,8 @@ function type(&$context) {
         return BooleanType;
     } else if($context instanceof stdClass) {
         return property($context, Type);
+    } else if(is_callable($context)) {
+        return ExpressionType;
     }
     return 'Unknown';
 }

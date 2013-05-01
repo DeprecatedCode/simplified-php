@@ -19,8 +19,12 @@ $O->{'@'} = function($left, $right) {
         return null;
     }
     
-    $method = property($left, '__apply__');
-    
+    if(is_callable($left)) {
+        $method = $left;
+    } else {
+        $method = property($left, '__apply__');
+    }
+
     # Expand when reaching a list
     if(is_array($right)) {
         $out = array();
