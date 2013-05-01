@@ -1,17 +1,22 @@
 <?php
 
-S::$lib->Void = new stdClass;
-
 /**
  * Void Constructor
  */
-S::$lib->Void->{S::CONSTRUCTOR} = function($context) {
+proto(VoidType)->{Constructor} = function() {
     return null;
+};
+
+/**
+ * Void String
+ */
+proto(VoidType)->__string__ = function(&$context) {
+    return 'Void';
 };
 
 /**
  * Void HTML
  */
-S::$lib->Void->__html__ = function($context) {
+proto(VoidType)->__html__ = function(&$context) {
     return '<span class="void">Void</span>';
 };

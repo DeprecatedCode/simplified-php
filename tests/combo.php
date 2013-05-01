@@ -8,40 +8,42 @@ expr: {a + b}
 
 # str
 
-str str .print
+s_s: str str        # hellohello
 
-str list .print
+s_l: str list            # hello1hello2hello3
 
-str entity .print
+s_e: str "#{b}" entity   # hello2
 
-str expr .print
+s_x: str expr            # Void
 
+/*
 # list
 
-list str .print
+list str
 
-list list .print
+list list
 
-list entity .print
+list entity
 
-list expr .print
+list expr
 
 # entity
 
-entity str .print
+entity str
 
-entity list .print
+entity list
 
-entity entity .print
+entity entity
 
-entity expr .print
+entity expr
 
 # expr
 
-expr str .print
+expr str
 
-expr list .print
+expr list
 
-expr entity .print
+expr entity
 
-expr expr .print
+expr expr
+*/

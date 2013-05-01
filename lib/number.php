@@ -10,8 +10,8 @@ proto(NumberType)->{Constructor} = function() {
 /**
  * Number Print
  */
-proto(NumberType)->print = function($context) {
-    echo $context;
+proto(NumberType)->__string__ = function($context) {
+    return "$context";
 };
 
 /**

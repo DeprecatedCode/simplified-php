@@ -18,8 +18,42 @@ proto(StringType)->length = function($context) {
  * String Apply
  */
 proto(StringType)->__apply__ = function(&$context) {
-    return function(&$string) use($context) {
-        return $context . $string;
+    return function(&$arg) use($context) {
+        
+        /**
+         * Iterate over String Characters
+         */
+        if(is_object($arg) && type($arg) === ExpressionType) {
+            $run = property($arg, 'run');
+            $out = array();
+            foreach(str_split($context) as $char) {
+                $entity = new stdClass;
+                $entity->it = $char;
+                $out[] = $run($entity);
+            }
+            return $out;
+        }
+        
+        /**
+         * String Format
+         */
+        else if(is_object($arg)) {
+            foreach($arg as $key => $value) {
+                if(strlen($key) > 0 && $key[0] === '#') {
+                    continue;
+                }
+                if(!is_string($value)) {
+                    $value = property($value, '__string__');
+                }
+                $context = str_replace('#{'.$key.'}', $value, $context);
+            }
+            return $context;
+        }
+        
+        /**
+         * Standard String Concatenate
+         */
+        return $context . $arg;
     };
 };
 

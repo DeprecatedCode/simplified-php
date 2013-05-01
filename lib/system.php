@@ -76,6 +76,9 @@ table.simplified-php-html td.key {
     text-align: right;
     border-right: 1px solid #ccc;
 }
+table.simplified-php-html td.key span.key {
+    color: #4ad;
+}
 span.sphp-list {
     color: #333;
 }
