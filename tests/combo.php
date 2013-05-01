@@ -2,7 +2,13 @@ str: "hello"
 
 list: (1, 2, 3)
 
-entity: [a: 1, b: 2, c: 3]
+y: 5
+
+Request.location " << that's the location" .print
+
+entity: [a: 1, b: 2, c: 3, d: {!3 + 4}]
+
+x: entity.d
 
 expr1: {a + b}
 

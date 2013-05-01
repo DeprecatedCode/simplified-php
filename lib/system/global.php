@@ -196,13 +196,8 @@ function property(&$context, $key, $seek = false, &$original = null) {
             /**
              * Immediately Execute
              */
-            if($value instanceof stdClass && isset($value->{Immediate})) {
-                $method = $value->{Immediate};
-                if($method === true) {
-                    $run = property($value, 'run');
-                    return $run($context);
-                }
-                $value = $method;
+            if($value instanceof stdClass && isset($value->{Immediate}) && $value->{Immediate} === true) {
+                $value = property($value, 'run');
             }
 
             # Checking is_callable here results in a bug since the string
