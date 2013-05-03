@@ -1,5 +1,8 @@
 <?php
 
+# Time
+define('TimerStart', microtime(true));
+
 # Global Prototypes
 const EntityType     = 'Entity';
 const BooleanType    = 'Boolean';

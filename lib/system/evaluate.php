@@ -67,7 +67,15 @@ function _system_evaluate() {
         }
     }
     
+    echo "AAA";
+    
     property($code, 'run');
+    
+    if(isset($request->args->{'!'})) {
+        $ms = 1000 * (microtime(true) - TimerStart);
+        $script = "<script>document.write('$ms ms');</script>";
+        property($script, 'print');
+    }
 }
 
 /**

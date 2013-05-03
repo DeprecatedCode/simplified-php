@@ -7,7 +7,7 @@ proto(RequestType)->{Proto} = proto(EntityType);
  */
 proto(RequestType)->{Constructor} = function() {
     if(!isset(proto(RequestType)->__instance__)) {
-        $headers = getallheaders();
+        $headers = (object) getallheaders();
         $location = $_SERVER['REQUEST_URI'];
         $path = explode('?', $location, 2);
         $path = $path[0];
