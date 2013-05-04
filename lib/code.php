@@ -10,16 +10,16 @@ proto(CodeType)->run = function($context) {
         if(!isset($context->stack)) {
             $context->stack = property($context, 'parse');
         }
-        
-        $entity = construct(EntityType);
+        if(!isset($context->entity)) {
+            $context->entity = new stdClass;
+        }
         
         /**
-         * Actually process the code
+         * Process the code
          */
-        _code_apply_stack($context->stack, $entity);
-        return $entity;
+        return _code_apply_stack($context->stack, $context->entity);
     } catch(Exception $e) {
-        throw new Exception($e->getMessage() . " of " . $context->label);
+        throw new Exception($e->getMessage() . " (from " . $context->label . ')');
     }
 };
 

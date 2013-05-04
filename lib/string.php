@@ -15,6 +15,24 @@ proto(StringType)->length = function($context) {
 };
 
 /**
+ * String Split
+ */
+proto(StringType)->split = function($context) {
+    return function($arg) use($context) {
+        if(is_string($arg)) {
+            if(strlen($arg)) {
+                return explode($arg, $context);
+            } else {
+                return str_split($context);
+            }
+        } else if(is_numeric($arg)) {
+            return str_split($context, $arg);
+        }
+        return explode($arg, $context);
+    };
+};
+
+/**
  * String Uppercase
  */
 proto(StringType)->upper = function($context) {

@@ -4,7 +4,7 @@ list: (1, 2, 3)
 
 list_length: list.length
 
-Request.location " << that's the location" .print
+Request.location.print
 
 entity: [a: 1, b: 2, c: 3, d: {!3 + 4}]
 

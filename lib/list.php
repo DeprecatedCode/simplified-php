@@ -11,11 +11,46 @@ proto(ListType)->{Constructor} = function() {
  * List Apply
  */
 proto(ListType)->__apply__ = function(&$context) {
-    return function(&$item) use($context) {
-        if(!is_string($item)) {
-            throw new Exception("Only strings can be applied to lists");
+    return function(&$arg) use($context) {
+
+        /**
+         * If arg is expression, get callable
+         */
+        if(is_object($arg) && type($arg) === ExpressionType) {
+            $arg = property($arg, 'run');   
         }
-        return implode($item, $context);
+        
+        /**
+         * List position access
+         */
+        if(is_numeric($arg)) {
+            if(isset($context[$arg])) {
+                return $context[$arg];
+            }
+            return null;
+        }
+        
+        /**
+         * Iterate over list
+         */        
+        if(is_callable($arg)) {
+            $out = array();
+            foreach($context as $item) {
+                $entity = new stdClass;
+                $entity->it = &$item;
+                $out[] = $arg($entity);
+            }
+            return $out;
+        }
+        
+        /**
+         * Implode with string
+         */
+        if(is_string($arg)) {
+            return implode($arg, $context);
+        }
+        
+        throw new Exception("Cannot use " . type($arg) . " on a list");
     };
 };
 
@@ -44,6 +79,13 @@ proto(ListType)->__string__ = function(&$context) {
  */
 proto(ListType)->length = function(&$context) {
     return count($context);
+};
+
+/**
+ * List Sum
+ */
+proto(ListType)->sum = function(&$context) {
+    return array_sum($context);
 };
 
 /**

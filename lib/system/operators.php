@@ -10,6 +10,16 @@ $O->{'.'} = function($left, $right) {
 };
 
 /**
+ * Range Operator
+ */
+$O->{'..'} = function($left, $right) {
+    $range = construct(RangeType);
+    $range->start = $left;
+    $range->end = $right;
+    return $range;
+};
+
+/**
  * No-op Operator
  */
 $O->{'@'} = function($left, $right) {
@@ -29,11 +39,51 @@ $O->{'@'} = function($left, $right) {
     if(is_array($right)) {
         $out = array();
         foreach($right as $item) {
+            if(is_object($item) && type($item) == RangeType) {
+                for($i=$item->start; $i <= $item->end; $i++) {
+                    $out[] = $method($i);
+                }
+                continue;
+            }
             $out[] = $method($item);
         }
         return $out;
     }
     return $method($right);
+};
+
+/**
+ * Multiplication Operator
+ */
+$O->{'*'} = function($left, $right) {
+    $idl = type($left);
+    $idr = type($right);
+    if($idl !== $idr) {
+        throw new Exception("Cannot multiply $idl + $idr");
+    }
+    switch($idl) {
+        case 'Number':
+            return $left * $right;
+        default:
+            throw new Exception("Cannot multiply $idl + $idr");
+    }
+};
+
+/**
+ * Division Operator
+ */
+$O->{'/'} = function($left, $right) {
+    $idl = type($left);
+    $idr = type($right);
+    if($idl !== $idr) {
+        throw new Exception("Cannot divide $idl + $idr");
+    }
+    switch($idl) {
+        case 'Number':
+            return $left / $right;
+        default:
+            throw new Exception("Cannot divide $idl + $idr");
+    }
 };
 
 /**

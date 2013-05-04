@@ -1,11 +1,15 @@
 <?php
 
-S::$lib->Range = clone S::$lib->Entity;
+/**
+ * Number Print
+ */
+proto(RangeType)->__string__ = function($context) {
+    return "$context->start..$context->end";
+};
 
 /**
- * Range Constructor
+ * Range HTML
  */
-S::$lib->Range->{S::CONSTRUCTOR} = function($context) {
-    $context->{S::TYPE} = S::$lib->Range->{S::TYPE};
-    return $context;
+proto(RangeType)->__html__ = function($context) {
+    return '<span class="number">' . $context->start . '..' . $context->end . '</span>';
 };

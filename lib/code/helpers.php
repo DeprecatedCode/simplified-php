@@ -124,7 +124,8 @@ function _code_apply_stack($stack, &$entity) {
             if(isset($item->break) || 
                 (isset($item->operator) && $item->operator === ',')) {
                 if(count($queue) > 0) {
-                    $entity[] = _code_reduce_value($queue, $entity);
+                    $parent = new stdClass;
+                    $entity[] = _code_reduce_value($queue, $parent);
                     $queue = array();
                 }
             } else {
@@ -147,6 +148,7 @@ function _code_apply_stack($stack, &$entity) {
         $queue = array();
         $key = null;
         $escape = false;
+        $last = null;
         foreach($stack as $item) {
             
             if($escape === true) {
@@ -178,12 +180,13 @@ function _code_apply_stack($stack, &$entity) {
                         /**
                          * Store the processed value in key
                          */
-                        $entity->{$key} = _code_reduce_value($queue, $entity);
+                        $last = _code_reduce_value($queue, $entity);
+                        $entity->{$key} = $last;
                     } else {
                         /**
-                         * Just process the code and discard the result
+                         * Just process the code and keep the result
                          */
-                        _code_reduce_value($queue, $entity);
+                        $last = _code_reduce_value($queue, $entity);
                     }
                     $queue = array();
                     $state = $_NEUTRAL;
@@ -204,6 +207,7 @@ function _code_apply_stack($stack, &$entity) {
                 $queue[] = $item;
             }
         }
+        return $last;
     }
     
     /**

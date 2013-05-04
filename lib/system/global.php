@@ -54,14 +54,19 @@ set_exception_handler(function($exc) {
 /**
  * Dump
  */
-function dump($context) {
+function dump($context, $style=true) {
     $system = construct(SystemType);
-    $style = property($system, '__css__');
+    if($context instanceof Closure) {
+        echo htmlspecialchars('[Native Code]');
+        return;
+    }
     $html = property($context, '__html__');
-    $style = '<style>' . $style . '</style>';
-    property($style, 'print');
+    if($style) {
+        $style = property($system, '__css__');
+        $style = '<style>' . $style . '</style>';
+        property($style, 'print');
+    }
     property($html, 'print');
-    exit;
 }
 
 /**
@@ -261,7 +266,6 @@ function property(&$context, $key, $seek = false, &$original = null) {
         /**
          * Todo - clean up error messaging
          */
-        var_dump($context);
         throw new Exception("Property '$key' Not Found on " . type($context) . 
             ($seek ? " or it's scope" : ''));
     }
