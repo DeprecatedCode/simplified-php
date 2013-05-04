@@ -33,6 +33,18 @@ proto(StringType)->split = function($context) {
 };
 
 /**
+ * String Replace
+ */
+proto(StringType)->replace = function($context) {
+    return function($arg) use($context) {
+        foreach($arg as $key => $value) {
+            $context = str_replace($key, $value, $context);
+        }
+        return $context;
+    };
+};
+
+/**
  * String Uppercase
  */
 proto(StringType)->upper = function($context) {
