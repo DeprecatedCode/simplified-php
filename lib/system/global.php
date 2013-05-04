@@ -147,7 +147,7 @@ function construct($type) {
         return $method();
     } else {
         $entity = new stdClass;
-        $entity->{Proto} = $proto;
+        $entity->{Proto} = $type;
         return $entity;
     }
 }
@@ -181,6 +181,9 @@ function type(&$context) {
     } else if(is_bool($context)) {
         return BooleanType;
     } else if($context instanceof stdClass) {
+        if(isset($context->{Proto}) && is_string($context->{Proto})) {
+            return $context->{Proto};
+        }
         return property($context, Type);
     } else if(is_callable($context)) {
         return ExpressionType;
@@ -225,6 +228,9 @@ function property(&$context, $key, $seek = false, &$original = null) {
          */
         if(isset($context->{Proto})) {
             $proto = $context->{Proto};
+            if(is_string($proto)) {
+                $proto = proto($proto);
+            }
             return property($proto, $key, $seek, $context);
         }
         

@@ -58,6 +58,13 @@ proto(ListType)->__apply__ = function(&$context) {
  * List Join
  */
 proto(ListType)->join = function(&$context) {
+    return implode('', $context);
+};
+
+/**
+ * List Glue
+ */
+proto(ListType)->glue = function(&$context) {
     return function(&$glue) use($context) {
         return implode($glue, $context);
     };

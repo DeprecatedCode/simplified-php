@@ -73,6 +73,14 @@ proto(StringType)->__apply__ = function(&$context) {
         }
         
         /**
+         * Range Access
+         */
+        else if(is_object($arg) && type($arg) === RangeType) {
+            print_r($arg);
+            return substr($context, $arg->start, $arg->end - $arg->start);
+        }
+        
+        /**
          * String Format
          */
         else if(is_object($arg)) {
@@ -86,6 +94,16 @@ proto(StringType)->__apply__ = function(&$context) {
                 $context = str_replace('#{'.$key.'}', $value, $context);
             }
             return $context;
+        }
+        
+        /**
+         * Index Access
+         */
+        else if(is_numeric($arg)) {
+            if($arg >= strlen($context)) {
+                return null;
+            }
+            return substr($context, $arg, 1);
         }
         
         /**

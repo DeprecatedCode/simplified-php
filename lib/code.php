@@ -19,7 +19,9 @@ proto(CodeType)->run = function($context) {
          */
         return _code_apply_stack($context->stack, $context->entity);
     } catch(Exception $e) {
-        throw new Exception($e->getMessage() . " (from " . $context->label . ')');
+        $line = $e->getLine();
+        $file = $e->getFile();
+        throw new Exception($e->getMessage() . " (from " . $context->label . ") -- thrown on line $line of $file");
     }
 };
 

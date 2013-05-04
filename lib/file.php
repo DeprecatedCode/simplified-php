@@ -41,3 +41,17 @@ proto(FileType)->code = function($context) {
     $code->label = $context->path;
     return $code;
 };
+
+/**
+ * Run code
+ */
+proto(FileType)->run = function($context) {
+    if(!isset($context->path)) {
+        throw new Exception("No file selected");
+    }
+    $code = construct(CodeType);
+    $code->code = property($context, 'string');
+    $code->label = $context->path;
+    property($code, 'run');
+    return $code->entity;
+};

@@ -20,13 +20,15 @@ expr2: {it.upper}
 
 s_s: str str                # 'hellohello'
 
-s_l: str list               # ('hello1', 'hello2', 'hello3')
+s_l: str list               # ('h', 'l', 'l')
 
 s_e: str "#{b}" entity      # 'hello2'
 
 s_x2: str expr2             # ('H', 'E', 'L', 'L', 'O')'
 
-s_x2_join: s_x2.join "-"    # 'H-E-L-L-O'
+s_x2_glue: s_x2.glue "-"    # 'H-E-L-L-O'
+
+s_x2_join: s_x2.join
 
 /*
 # list

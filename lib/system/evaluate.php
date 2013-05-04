@@ -33,7 +33,10 @@ function _system_evaluate() {
                 $entity = unserialize(file_get_contents($file));
             } else {
                 $entity = new stdClass;
-                $entity->session = $session;
+            }
+            $entity->__session__ = $session;
+            if(!isset($entity->__history__) || !is_array($entity->__history__)) {
+                $entity->__history__ = array();
             }
             echo "<pre>[in] " . $request->form->{'code'} . "</pre>";
             ob_start();
@@ -50,6 +53,10 @@ function _system_evaluate() {
             echo "<pre>";
             echo htmlspecialchars($str);
             echo "</pre>";
+            array_unshift($entity->__history__, $exec->code);
+            if(count($entity->__history__) > 100) {
+                array_pop($entity->__history__);
+            }
             file_put_contents($file, serialize($entity));
             exit;
         }

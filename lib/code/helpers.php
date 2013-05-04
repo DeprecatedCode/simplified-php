@@ -29,53 +29,60 @@ function _code_flatten_stack(&$stack) {
         $lines = 0;
         $len = count($stack);
         for($i = 0; $i < $len; $i++) {
-            $lines += substr_count($stack[$i]->{'#raw'}, "\n");
             
-            if(isset($stack[$i]->list)) {
-                $children = $stack[$i]->list;
-                unset($stack[$i]->list);
+            $item = is_object($stack[$i]) ? clone $stack[$i] : $stack[$i];
+            $stack[$i] = $item;
+            
+            $lines += substr_count($item->{'#raw'}, "\n");
+            
+            if(isset($item->list)) {
+                $children = $item->list;
+                unset($item->list);
                 $type = 'list';
-            } else if(isset($stack[$i]->entity)) {
-                $children = $stack[$i]->entity;
-                unset($stack[$i]->entity);
+            } else if(isset($item->entity)) {
+                $children = $item->entity;
+                unset($item->entity);
                 $type = 'entity';
-            } else if(isset($stack[$i]->expression)) {
-                $children = $stack[$i]->expression;
-                unset($stack[$i]->expression);
+            } else if(isset($item->expression)) {
+                $children = $item->expression;
+                unset($item->expression);
                 $type = 'expression';
             } else {
                 $type = 'other';
-                if(isset($stack[$i]->comment)) {
+                if(isset($item->comment)) {
                     $type = 'comment';
-                    unset($stack[$i]->comment);
-                } else if(isset($stack[$i]->string)) {
+                    unset($item->comment);
+                } else if(isset($item->string)) {
                     $type = 'string';
-                    unset($stack[$i]->string);
-                } else if(isset($stack[$i]->operator)) {
+                    unset($item->string);
+                } else if(isset($item->operator)) {
                     $type = 'operator';
-                    unset($stack[$i]->operator);
-                } else if(isset($stack[$i]->identifier)) {
+                    unset($item->operator);
+                } else if(isset($item->identifier)) {
                     $type = 'identifier';
-                    unset($stack[$i]->identifier);
-                } else if(isset($stack[$i]->break)) {
+                    unset($item->identifier);
+                } else if(isset($item->literal)) {
+                    $type = 'literal';
+                    unset($item->literal);
+                } else if(isset($item->break)) {
                     $type = 'break';
-                    unset($stack[$i]->break);
-                } else if(isset($stack[$i]->space)) {
+                    unset($item->break);
+                } else if(isset($item->space)) {
                     $type = 'space';
-                    unset($stack[$i]->space);
+                    unset($item->space);
                 }
                 $children = false;
             }
-            if(!isset($stack[$i]->type)) {
-                $stack[$i]->type = $type;
+            if(!isset($item->type)) {
+                $item->type = $type;
             }
-            if(is_array($children) && isset($stack[$i]->{'#rawStop'})) {
+            if(is_array($children) && isset($item->{'#rawStop'})) {
                 $new = new stdClass;
-                $new->{'#raw'} = $stack[$i]->{'#rawStop'};
+                $new->{'#raw'} = $item->{'#rawStop'};
                 $new->type = $type;
                 $children[] = $new;
                 array_splice($stack, $i + 1, 0, $children);
-                unset($stack[$i]->{'#rawStop'});
+                unset($item->{'#rawStop'});
                 continue 2;
             }
         }
@@ -277,11 +284,7 @@ function _code_reduce_value(&$stack, &$context) {
                     /**
                      * Get variable in current scope
                      */
-                    if(is_numeric($item->identifier)) {
-                        $x = (float) $item->identifier;
-                    } else {
-                        $x = property($context, $item->identifier, true);
-                    }
+                    $x = property($context, $item->identifier, true);
                     $value = $operation($value, $x);
                 }
             } catch(Exception $e) {
@@ -291,8 +294,12 @@ function _code_reduce_value(&$stack, &$context) {
         } else if(isset($item->string)) {
             $value = $operation($value, $item->string);
             $operation = $noop;
+        } else if(isset($item->literal)) {
+            $value = $operation($value, (float) $item->literal);
+            $operation = $noop;
         } else {
-            throw new CodeException("Not implemented feature found");
+            $desc = print_r($item, true);
+            throw new CodeException($item, "Not implemented feature '$desc' found");
         }
     }
     return $value;
@@ -307,6 +314,7 @@ function _code_parse_expression($expr, &$stack, $line, $column) {
         return;
     }
     static $regex = array(
+        '[+-]?(\d+\.?\d*([eE][+-]?\d+)?)'  => 'literal',
         '[a-zA-Z0-9_]+'     => 'identifier',
         '[^\sa-zA-Z0-9_]+'  => 'operator',
         '\n+'               => 'break',
