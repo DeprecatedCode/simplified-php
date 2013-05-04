@@ -196,6 +196,14 @@ function type(&$context) {
  * seek: Whether to travel up the scope chain.
  */
 function property(&$context, $key, $seek = false, &$original = null) {
+    
+    /**
+     * Self property
+     */
+    if($key === '__self__') {
+        return $context;
+    }
+    
     if($context instanceof stdClass) {
 
         /**
