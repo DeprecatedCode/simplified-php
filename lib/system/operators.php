@@ -44,19 +44,36 @@ $O->{'@'} = function($left, $right) {
 };
 
 /**
+ * Exponent Operator
+ */
+$O->{'^'} = function($left, $right) {
+    $idl = type($left);
+    $idr = type($right);
+    if($idl !== $idr) {
+        throw new Exception("Cannot raise $idl ^ $idr");
+    }
+    switch($idl) {
+        case 'Number':
+            return pow($left, $right);
+        default:
+            throw new Exception("Cannot raise $idl ^ $idr");
+    }
+};
+
+/**
  * Multiplication Operator
  */
 $O->{'*'} = function($left, $right) {
     $idl = type($left);
     $idr = type($right);
     if($idl !== $idr) {
-        throw new Exception("Cannot multiply $idl + $idr");
+        throw new Exception("Cannot multiply $idl * $idr");
     }
     switch($idl) {
         case 'Number':
             return $left * $right;
         default:
-            throw new Exception("Cannot multiply $idl + $idr");
+            throw new Exception("Cannot multiply $idl * $idr");
     }
 };
 
@@ -67,13 +84,13 @@ $O->{'/'} = function($left, $right) {
     $idl = type($left);
     $idr = type($right);
     if($idl !== $idr) {
-        throw new Exception("Cannot divide $idl + $idr");
+        throw new Exception("Cannot divide $idl / $idr");
     }
     switch($idl) {
         case 'Number':
             return $left / $right;
         default:
-            throw new Exception("Cannot divide $idl + $idr");
+            throw new Exception("Cannot divide $idl / $idr");
     }
 };
 
@@ -109,6 +126,12 @@ $O->{'+'} = function($left, $right) {
  * Subtraction Operator
  */
 $O->{'-'} = function($left, $right) {
+    if(is_null($left)) {
+        $left = 0;
+    }
+    if(is_null($right)) {
+        $right = 0;
+    }
     $idl = type($left);
     $idr = type($right);
     if($idl !== $idr) {
