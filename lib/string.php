@@ -22,6 +22,13 @@ proto(StringType)->number = function($context) {
 };
 
 /**
+ * String Reverse
+ */
+proto(StringType)->reverse = function($context) {
+    return strrev($context);
+};
+
+/**
  * String Split
  */
 proto(StringType)->split = function($context) {
