@@ -38,7 +38,7 @@ function _system_evaluate() {
             if(!isset($entity->__history__) || !is_array($entity->__history__)) {
                 $entity->__history__ = array();
             }
-            echo "<pre>[in] " . $request->form->{'code'} . "</pre>";
+            echo "<pre>[in] " . htmlspecialchars($request->form->{'code'}) . "</pre>";
             ob_start();
             $exec = construct(CodeType);
             $exec->entity = $entity;
