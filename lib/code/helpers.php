@@ -97,7 +97,14 @@ function _code_flatten_stack(&$stack) {
 /**
  * Utility Method: Apply Stack
  */
-function _code_apply_stack($stack, &$entity) {
+function _code_apply_stack($stack, &$entity, $scope=null) {
+    
+    /**
+     * Create a scope if no parent
+     */
+    if(is_null($scope)) {
+        $scope = new stdClass;
+    }
     
     /**
      * Evaluate Expressions
@@ -131,8 +138,7 @@ function _code_apply_stack($stack, &$entity) {
             if(isset($item->break) || 
                 (isset($item->operator) && $item->operator === ',')) {
                 if(count($queue) > 0) {
-                    $parent = new stdClass;
-                    $entity[] = _code_reduce_value($queue, $parent);
+                    $entity[] = _code_reduce_value($queue, $scope);
                     $queue = array();
                 }
             } else {
@@ -156,6 +162,7 @@ function _code_apply_stack($stack, &$entity) {
         $key = null;
         $escape = false;
         $last = null;
+        $entity->{Scope} = $scope;
         foreach($stack as $item) {
             
             if($escape === true) {
@@ -252,18 +259,18 @@ function _code_reduce_value(&$stack, &$context) {
             continue;
         } else if(isset($item->entity)) {
             $entity = new stdClass;
-            _code_apply_stack($item->entity, $entity);
-            $value = $operation($value, $entity);
+            _code_apply_stack($item->entity, $entity, $context);
+            $value = operate($operation, $value, $entity);
             $operation = $noop;
         } else if(isset($item->expression)) {
             $expression = construct(ExpressionType);
-            _code_apply_stack($item->expression, $expression);
-            $value = $operation($value, $expression);
+            _code_apply_stack($item->expression, $expression, $context);
+            $value = operate($operation, $value, $expression);
             $operation = $noop;
         } else if(isset($item->list)) {
             $list = construct(ListType);
-            _code_apply_stack($item->list, $list);
-            $value = $operation($value, $list);
+            _code_apply_stack($item->list, $list, $context);
+            $value = operate($operation, $value, $list);
             $operation = $noop;
         } else if(isset($item->operator)) {
             if(isset($O->{$item->operator})) {
@@ -285,17 +292,17 @@ function _code_reduce_value(&$stack, &$context) {
                      * Get variable in current scope
                      */
                     $x = property($context, $item->identifier, true);
-                    $value = $operation($value, $x);
+                    $value = operate($operation, $value, $x);
                 }
             } catch(Exception $e) {
                 throw new CodeException($item, $e);
             }
             $operation = $noop;
         } else if(isset($item->string)) {
-            $value = $operation($value, $item->string);
+            $value = operate($operation, $value, $item->string);
             $operation = $noop;
         } else if(isset($item->literal)) {
-            $value = $operation($value, (float) $item->literal);
+            $value = operate($operation, $value, (float) $item->literal);
             $operation = $noop;
         } else {
             $desc = print_r($item, true);

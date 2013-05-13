@@ -12,7 +12,6 @@ const FileType       = 'File';
 const ListType       = 'List';
 const NetworkType    = 'Network';
 const NumberType     = 'Number';
-const PropertyType   = 'Property';
 const RangeType      = 'Range';
 const RequestType    = 'Request';
 const RouterType     = 'Router';
@@ -30,6 +29,7 @@ const Constructor    = '#constructor';
 const Immediate      = '#immediate';
 const Type           = '#type';
 const Proto          = '#proto';
+const Scope          = '#scope';
 
 /**
  * Error Handler
@@ -81,7 +81,7 @@ Engine::$proto = new stdClass;
 
 Engine::$types = array(
     'Entity', 'Boolean', 'Code', 'Expression', 'File', 'List', 'Network',
-    'Number', 'Property', 'Range', 'Request', 'Router', 'String', 'System',
+    'Number', 'Range', 'Request', 'Router', 'String', 'System',
     'Test', 'Void'
 );
 
@@ -204,6 +204,57 @@ function property(&$context, $key, $seek = false, &$original = null) {
         return $context;
     }
     
+    /**
+     * Return keys
+     */
+    if($key === '__keys__') {
+        $keys = array();
+        if($context instanceof stdClass) {
+            foreach($context as $key => $value) {
+                if(strlen($key) > 0 && $key[0] === '#') {
+                    continue;
+                }
+                $keys[] = $key;
+            }
+            if(isset($context->{Proto})) {
+                $proto = $context->{Proto};
+                if(is_string($proto)) {
+                    $proto = proto($proto);
+                }
+            } else if(isset($context->{Type})) {
+                $proto = proto($context->{Type});
+            } else {
+                $proto = proto(EntityType);
+            }
+
+            if($proto !== null) {
+                foreach($proto as $key => $value) {
+                    if(strlen($key) > 0 && $key[0] === '#') {
+                        continue;
+                    }
+                    $keys[] = $key;
+                }  
+            }
+        }
+        return $keys;
+    }
+    
+    /**
+     * Return values
+     */
+    if($key === '__values__') {
+        $values = array();
+        if($context instanceof stdClass) {
+            foreach($context as $key => $value) {
+                if(strlen($key) > 0 && $key[0] === '#') {
+                    continue;
+                }
+                $values[] = $value;
+            }
+        }
+        return $values;
+    }
+    
     if($context instanceof stdClass) {
 
         /**
@@ -221,6 +272,7 @@ function property(&$context, $key, $seek = false, &$original = null) {
 
             # Checking is_callable here results in a bug since the string
             # "Entity" is considered callable, as function entity() exists.
+            # That's why we use instanceof Closure :)
             if(!($value instanceof Closure)) {
                 return $value;
             }
@@ -255,18 +307,6 @@ function property(&$context, $key, $seek = false, &$original = null) {
         }
         
         /**
-         * Search Scope
-         */
-        if($seek) {
-            /**
-             * Return Global Entities
-             */
-            if(isset(Engine::$proto->$key)) {
-                return construct($key);
-            }
-        }
-        
-        /**
          * Iterate lists
          */
         if(is_array($original)) {
@@ -276,7 +316,35 @@ function property(&$context, $key, $seek = false, &$original = null) {
             }
             return $out;
         }
-
+        
+        /**
+         * Search Scope
+         */
+        if($seek) {
+            /**
+             * Return Global Entities
+             */
+            if(isset(Engine::$proto->$key)) {
+                return construct($key);
+            }
+            
+            /**
+             * Return Booleans
+             */
+            if($key === 'True') {
+                return true;
+            } else if($key === 'False') {
+                return false;
+            }
+            
+            /**
+             * If scope exists, try there!
+             */
+            if(isset($context->{Scope})) {
+                return property($context->{Scope}, $key, $seek, $context);
+            }
+        }
+        
         /**
          * Todo - clean up error messaging
          */
@@ -290,4 +358,56 @@ function property(&$context, $key, $seek = false, &$original = null) {
     $type = type($context);
     $proto = proto($type);
     return property($proto, $key, $seek, $context);
+}
+
+/**
+ * Operate $operation($left, $right)
+ */
+function operate($operation, $left, $right) {
+    
+    # Iterate on the right side
+    if(is_array($right)) {
+        $out = array();
+        foreach($right as $item) {
+            if(type($item) === RangeType) {
+                for($i = $item->start; $i <= $item->end; $i+= 1) {
+                    $out[] = operate($operation, $left, $i);
+                }    
+            } else {
+                $out[] = operate($operation, $left, $item);
+            }
+        }
+        return $out;
+    }
+    
+    # Expand when operating over a list or entity
+    else if(is_array($left) || $left instanceof stdClass) {
+        $out = array();
+        $rightExpression = type($right) === ExpressionType;
+        foreach($left as $key => $item) {
+            
+            if($rightExpression) {
+                $entity = new stdClass;
+                $entity->key = $key;
+                if(is_object($item) && type($item) == RangeType) {
+                    for($i=$item->start; $i <= $item->end; $i++) {
+                        $entity->it = $i;
+                        $run = property($right, 'run');
+                        $out[] = $run($entity);
+                    }
+                } else {
+                    $entity->it = $item;
+                    $run = property($right, 'run');
+                    $out[] = $run($entity);
+                }
+            }
+            
+            else {
+                $out[] = $operation($item, $right);
+            }
+        }
+        return $out;
+    }
+    
+    return $operation($left, $right);
 }

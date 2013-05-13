@@ -35,20 +35,6 @@ $O->{'@'} = function($left, $right) {
         $method = property($left, '__apply__');
     }
 
-    # Expand when reaching a list
-    if(is_array($right)) {
-        $out = array();
-        foreach($right as $item) {
-            if(is_object($item) && type($item) == RangeType) {
-                for($i=$item->start; $i <= $item->end; $i++) {
-                    $out[] = $method($i);
-                }
-                continue;
-            }
-            $out[] = $method($item);
-        }
-        return $out;
-    }
     return $method($right);
 };
 

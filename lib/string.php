@@ -15,6 +15,13 @@ proto(StringType)->length = function($context) {
 };
 
 /**
+ * String Number
+ */
+proto(StringType)->number = function($context) {
+    return (float) $context;
+};
+
+/**
  * String Split
  */
 proto(StringType)->split = function($context) {
