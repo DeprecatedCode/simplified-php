@@ -29,6 +29,17 @@ proto(FileType)->string = function($context) {
 };
 
 /**
+ * Lines
+ */
+proto(FileType)->lines = function($context) {
+    if(!isset($context->path)) {
+        throw new Exception("No file selected");
+    }
+    $context->string = file_get_contents($context->path);
+    return explode("\n", $context->string);
+};
+
+/**
  * As code
  */
 proto(FileType)->code = function($context) {

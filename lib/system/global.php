@@ -394,7 +394,9 @@ function operate($operation, $left, $right) {
             $left = array($left);
         }
         foreach($left as $key => $item) {
-            
+            if(strlen($key) && $key[0] === '#') {
+                continue;
+            }
             if($rightExpression) {
                 $entity = new stdClass;
                 $entity->key = $key;
