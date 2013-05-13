@@ -323,7 +323,8 @@ function _code_parse_expression($expr, &$stack, $line, $column) {
     static $regex = array(
         '[+-]?(\d+(\.\d+)?([eE][+-]?\d+)?)'  => 'literal',
         '[a-zA-Z0-9_]+'     => 'identifier',
-        '\.{1,2}|[^\sa-zA-Z0-9_]'  => 'operator',
+        '\.\.?'             => 'operator',
+        '[^\sa-zA-Z0-9_]'   => 'operator',
         '\n+'               => 'break',
         '\s+'               => 'space'
     );

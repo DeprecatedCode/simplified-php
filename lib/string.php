@@ -143,7 +143,11 @@ proto(StringType)->__apply__ = function(&$context) {
  * String to Code
  */
 proto(StringType)->code = function($context) {
-    $code = S::construct('Code');
+    $code = construct(CodeType);
+    $code->code = $context;
+    $x = substr($context, 0, 10) . (strlen($context) > 10 ? '...' : '');
+    $code->label = "[String \"$x\"]";
+    return $code;
 };
 
 /**
