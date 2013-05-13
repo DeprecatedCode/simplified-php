@@ -8,9 +8,9 @@ proto(ListType)->{Constructor} = function() {
 };
 
 /**
- * List Apply
+ * List Get
  */
-proto(ListType)->__apply__ = function(&$context) {
+proto(ListType)->get = function(&$context) {
     return function(&$arg) use($context) {
 
         /**
@@ -30,27 +30,7 @@ proto(ListType)->__apply__ = function(&$context) {
             return null;
         }
         
-        /**
-         * Iterate over list
-         */        
-        if(is_callable($arg)) {
-            $out = array();
-            foreach($context as $item) {
-                $entity = new stdClass;
-                $entity->it = &$item;
-                $out[] = $arg($entity);
-            }
-            return $out;
-        }
-        
-        /**
-         * Implode with string
-         */
-        if(is_string($arg)) {
-            return implode($arg, $context);
-        }
-        
-        throw new Exception("Cannot use " . type($arg) . " on a list");
+        throw new Exception("Cannot get " . type($arg) . " from a list");
     };
 };
 

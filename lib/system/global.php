@@ -209,7 +209,7 @@ function property(&$context, $key, $seek = false, &$original = null) {
      */
     if($key === '__keys__') {
         $keys = array();
-        if($context instanceof stdClass) {
+        if($context instanceof stdClass || is_array($context)) {
             foreach($context as $key => $value) {
                 if(strlen($key) > 0 && $key[0] === '#') {
                     continue;
@@ -244,7 +244,7 @@ function property(&$context, $key, $seek = false, &$original = null) {
      */
     if($key === '__values__') {
         $values = array();
-        if($context instanceof stdClass) {
+        if($context instanceof stdClass || is_array($context)) {
             foreach($context as $key => $value) {
                 if(strlen($key) > 0 && $key[0] === '#') {
                     continue;
@@ -370,9 +370,15 @@ function operate($operation, $left, $right) {
         $out = array();
         foreach($right as $item) {
             if(type($item) === RangeType) {
-                for($i = $item->start; $i <= $item->end; $i+= 1) {
-                    $out[] = operate($operation, $left, $i);
-                }    
+                if($item->step > 0) {
+                    for($i = $item->start; $i <= $item->end; $i += $item->step) {
+                        $out[] = operate($operation, $left, $i);
+                    }
+                } else {
+                    for($i = $item->start; $i >= $item->end; $i += $item->step) {
+                        $out[] = operate($operation, $left, $i);
+                    }
+                }
             } else {
                 $out[] = operate($operation, $left, $item);
             }
@@ -384,16 +390,27 @@ function operate($operation, $left, $right) {
     else if(is_array($left) || $left instanceof stdClass) {
         $out = array();
         $rightExpression = type($right) === ExpressionType;
+        if(type($left) === RangeType) {
+            $left = array($left);
+        }
         foreach($left as $key => $item) {
             
             if($rightExpression) {
                 $entity = new stdClass;
                 $entity->key = $key;
                 if(is_object($item) && type($item) == RangeType) {
-                    for($i=$item->start; $i <= $item->end; $i++) {
-                        $entity->it = $i;
-                        $run = property($right, 'run');
-                        $out[] = $run($entity);
+                    if($item->step > 0) {
+                        for($i=$item->start; $i <= $item->end; $i += $item->step) {
+                            $entity->it = $i;
+                            $run = property($right, 'run');
+                            $out[] = $run($entity);
+                        }
+                    } else {
+                        for($i=$item->start; $i >= $item->end; $i += $item->step) {
+                            $entity->it = $i;
+                            $run = property($right, 'run');
+                            $out[] = $run($entity);
+                        }
                     }
                 } else {
                     $entity->it = $item;
@@ -403,11 +420,22 @@ function operate($operation, $left, $right) {
             }
             
             else {
-                $out[] = $operation($item, $right);
+                if(is_object($item) && type($item) == RangeType) {
+                    if($item->step > 0) {
+                        for($i=$item->start; $i <= $item->end; $i += $item->step) {
+                            $out[] = $operation($i, $right);
+                        }
+                    } else {
+                        for($i=$item->start; $i >= $item->end; $i += $item->step) {
+                            $out[] = $operation($i, $right);
+                        }
+                    }
+                } else {
+                    $out[] = $operation($item, $right);
+                }
             }
         }
         return $out;
     }
-    
     return $operation($left, $right);
 }

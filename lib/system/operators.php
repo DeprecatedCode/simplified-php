@@ -14,6 +14,11 @@ $O->{'.'} = function($left, $right) {
  */
 $O->{'..'} = function($left, $right) {
     $range = construct(RangeType);
+    if($right > $left) {
+        $range->step = 1;
+    } else {
+        $range->step = -1;
+    }
     $range->start = $left;
     $range->end = $right;
     return $range;
