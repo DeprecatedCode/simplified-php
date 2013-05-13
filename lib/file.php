@@ -8,7 +8,6 @@ proto(FileType)->__apply__ = function($context) {
         if(!is_string($item)) {
             throw new Exception("File argument must be a string");
         }
-        $out = array();
         if($item !== '' && $item[0] !== '/') {
             $item = getcwd() . "/$item";
         }

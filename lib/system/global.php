@@ -57,7 +57,7 @@ set_exception_handler(function($exc) {
 function dump($context, $style=true) {
     $system = construct(SystemType);
     if($context instanceof Closure) {
-        echo htmlspecialchars('[Native Code]');
+        echo htmlspecialchars('[Native Expression]');
         return;
     }
     $html = property($context, '__html__');
@@ -122,7 +122,7 @@ function proto($type) {
          */
         if(!isset(Engine::$proto->$type->__string__)) {
             Engine::$proto->$type->__string__ = function($context) use($type) {
-                return $type;
+                return "[Native $type]";
             };
         }
     }
@@ -387,7 +387,7 @@ function operate($operation, $left, $right) {
     }
     
     # Expand when operating over a list or entity
-    else if(is_array($left) || $left instanceof stdClass) {
+    else if(is_array($left) || type($left) === EntityType) {
         $out = array();
         $rightExpression = type($right) === ExpressionType;
         if(type($left) === RangeType) {

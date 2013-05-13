@@ -34,7 +34,7 @@ $O->{'@'} = function($left, $right) {
         return null;
     }
     
-    if(is_callable($left)) {
+    if($left instanceof Closure) {
         $method = $left;
     } else {
         $method = property($left, '__apply__');

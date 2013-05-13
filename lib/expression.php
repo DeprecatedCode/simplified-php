@@ -21,7 +21,7 @@ proto(ExpressionType)->run = function($context) {
  */
 proto(ExpressionType)->__html__ = function($context) {
     if($context instanceof Closure) {
-        return '[Native Code]';
+        return '[Native Expression]';
     }
     $html = '{' . (isset($context->{Immediate}) && $context->{Immediate} ?
         '<span class="sphp-operator">!</span>' : '');
