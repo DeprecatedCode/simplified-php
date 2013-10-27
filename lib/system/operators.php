@@ -154,3 +154,10 @@ $O->{'-'} = function($left, $right) {
             throw new Exception("Cannot subtract $idl - $idr");
     }
 };
+
+/**
+ * Equality Operator
+ */
+$O->{'='} = function($left, $right) {
+    return $left === $right;
+};

@@ -110,20 +110,11 @@ function _code_apply_stack($stack, &$entity, $scope=null) {
      * Evaluate Expressions
      */
     $type = type($entity);
-
-    if($type === ExpressionType) {
-        if(isset($stack[0]) && isset($stack[0]->operator)
-            && $stack[0]->operator == '!') {
-            array_shift($stack);
-            $entity->{Immediate} = true;
-        }
-        $entity->stack = $stack;
-    }
     
     /**
      * Evaluate Lists
      */
-    else if($type === ListType) {
+    if($type === ListType) {
         $end = new stdClass;
         $end->break = true;
         $stack[] = $end;
@@ -150,7 +141,7 @@ function _code_apply_stack($stack, &$entity, $scope=null) {
     /**
      * Evaluate Entities
      */
-    else if($type === EntityType) {
+    else if($type === EntityType || $type === ExpressionType) {
         static $_NEUTRAL = 0;
         static $_KEY = 1;
         static $_VALUE = 3;
@@ -185,23 +176,40 @@ function _code_apply_stack($stack, &$entity, $scope=null) {
             if(isset($item->break) || 
                 (isset($item->operator) && $item->operator === ',')) {
                 if(count($queue) > 0) {
-                    if($state === $_KEY) {
-                        /**
-                         * Assign Void to key when no value provided
-                         */
-                        $entity->{_code_reduce_key($queue, $entity)} = null;
-                    } else if($state === $_VALUE) {
-                        /**
-                         * Store the processed value in key
-                         */
-                        $last = _code_reduce_value($queue, $entity);
-                        $entity->{$key} = $last;
-                    } else {
-                        /**
-                         * Just process the code and keep the result
-                         */
-                        $last = _code_reduce_value($queue, $entity);
+                    /**
+                     * Process Entities
+                     */
+                    if($type === EntityType) {
+                        if($state === $_KEY) {
+                            /**
+                             * Assign Void to key when no value provided
+                             */
+                            $entity->{_code_reduce_key($queue, $entity)} = null;
+                        } else if($state === $_VALUE) {
+                            /**
+                             * Store the processed value in key
+                             */
+                            $last = _code_reduce_value($queue, $entity);
+                            $entity->{$key} = $last;
+                        } else {
+                            /**
+                             * Just process the code and keep the result
+                             */
+                            $last = _code_reduce_value($queue, $entity);
+                        }
                     }
+                    
+                    /**
+                     * Process Expressions
+                     */
+                    else if ($type === ExpressionType) {
+                        $group = new stdClass;
+                        $group->condition = $key;
+                        $group->stack = $queue;
+                        $entity->groups[] = $group;
+                    }
+
+                    $key = null;
                     $queue = array();
                     $state = $_NEUTRAL;
                 }
@@ -210,17 +218,35 @@ function _code_apply_stack($stack, &$entity, $scope=null) {
                 continue;
             } else if(isset($item->operator) && $item->operator === ':') {
                 if(count($queue) > 0) {
-                    $key = _code_reduce_key($queue, $entity);
+                    /**
+                     * Process Entities
+                     */
+                    if($type === EntityType) {
+                        $key = _code_reduce_key($queue, $entity);
+                    }
+                    
+                    /**
+                     * Process Expressions
+                     */
+                    else if ($type === ExpressionType) {
+                        $key = $queue;
+                    }
+
                     $queue = array();
                     $state = $_VALUE;
                 } else {
                     throw new CodeException($item,
-                        "No key provided when parsing Entity");
+                        "No key provided when parsing $type");
                 }
             } else {
                 $queue[] = $item;
             }
         }
+        
+        if ($type === ExpressionType) {
+            return $entity;
+        }
+        
         return $last;
     }
     
@@ -254,6 +280,9 @@ function _code_reduce_value(&$stack, &$context) {
     $operator = '@';
     $operation = $noop = $O->{$operator};
     $value = null;
+    if (!is_array($stack)) {
+        throw new Exception("Invalid stack provided");    
+    }
     foreach($stack as $item) {
         if(isset($item->space)) {
             continue;

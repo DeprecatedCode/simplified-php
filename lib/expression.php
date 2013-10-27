@@ -9,10 +9,18 @@ proto(ExpressionType)->run = function($context) {
     }
     if(isset($context->{Immediate}) && $context->{Immediate}) {
         $entity = new stdClass;
-        return _code_reduce_value($context->stack, $entity);
+        foreach($context->groups as $group) {
+            if (_code_reduce_value($group->condition, $entity)) {
+                return _code_reduce_value($group->stack, $entity);
+            }
+        }
     }
     return function($entity) use($context) {
-        return _code_reduce_value($context->stack, $entity);
+        foreach($context->groups as $group) {
+            if (_code_reduce_value($group->condition, $entity)) {
+                return _code_reduce_value($group->stack, $entity);
+            }
+        }
     };
 };
 

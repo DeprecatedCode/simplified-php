@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+    <title>Magic Editor Example</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script src="mee.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .editor textarea {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            resize: none;
+            padding: 1em;
+            font-family: "Droid Sans Mono";
+            font-size: 14px;
+            line-height: 1.5;
+            border: none;
+        }
+    </style>
+    <script>
+        $(function () {
+            $('.editor').mee();
+        });
+    </script>
+</head>
+<div class="editor"></div>
+</html>

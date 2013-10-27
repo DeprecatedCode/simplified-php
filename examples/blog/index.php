@@ -4,7 +4,7 @@
 dir: 'data/'
 ext: '.txt'
 
-? Request.method = {
+Request.method = {
   "POST": {
     File(dir (Request.form.slug) ext).write(Request.form.text)
     Router.redirect('?')
@@ -20,7 +20,7 @@ ext: '.txt'
 </form>
 <hr/>""".print
 
-? Request.args.slug = {
+Request.args.slug = {
   Void: {
     Directory(dir).each {
       '<a href="?slug=' Path(it).name '">' File(it).string.lines[0] '</a><br/>'.print
@@ -30,9 +30,11 @@ ext: '.txt'
   *: {
     '<a href="?">&lauqo; All Posts</a>'.print
 
-    File(dir post ext).string.lines.each ? key = {
-      0: '<h2>' it '</h2>'.print
-      *: '<p>' it '</p>'.print
+    File(dir post ext).string.lines.each {
+      key = {
+        0: '<h2>' it '</h2>'.print
+        *: '<p>' it '</p>'.print
+      }
     }
   }
 }

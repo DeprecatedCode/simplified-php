@@ -348,8 +348,7 @@ function property(&$context, $key, $seek = false, &$original = null) {
         /**
          * Todo - clean up error messaging
          */
-        throw new Exception("Property '$key' Not Found on " . type($context) . 
-            ($seek ? " or it's scope" : ''));
+        return construct(VoidType);
     }
 
     /**
